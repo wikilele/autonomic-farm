@@ -1,0 +1,15 @@
+.vscode/
+Catch2
+Catch2/*
+main
+testmain
+tests
+tests/*
+testmain.cpp
+
+src/queue/Queue.cpp
+
+report
+report/*
+
+!*.pdf
