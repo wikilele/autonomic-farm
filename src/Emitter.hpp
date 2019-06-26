@@ -1,4 +1,5 @@
 #include <vector>
+#include <iostream>
 using namespace std;
 
 // Iterface for implementing Emitter
@@ -26,7 +27,7 @@ class DefaultEmitter: public IEmitter<TIN> {
         }
 
         TIN* getNextItem(){
-            TIN* item  = NULL; // TODO consider using defined EOS
+            TIN* item  = NULL; 
             
             if(vector_index < stream_vector->size()){
                 

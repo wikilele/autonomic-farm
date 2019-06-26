@@ -1,6 +1,6 @@
 #include <iostream>
-#include <src/Scheduler.hpp>
-#include <src/WorkerPool.hpp>
+#include <src/AutonomicFarmBuilder.hpp>
+
 
 auto funz = [](int* x) -> int*{
     return new int(*x + 1);
@@ -8,16 +8,20 @@ auto funz = [](int* x) -> int*{
 
 int main(int argc, char * argv[]){
     // check input parameters
-    vector<int> vect(7,42);
-    IEmitter<int>* e = new DefaultEmitter<int>(&vect);
-    ICollector<int>* c = new DefaultCollector<int>();
-    Scheduler<int,int>* scheduler = new Scheduler<int,int>(e,c);
-    FarmWorkerPool<int,int>* workerpool = new FarmWorkerPool<int,int>(scheduler,funz);
-    workerpool->initPool(4);
-    scheduler->schedule();
+    vector<int> vect;
+    for(int i = 0; i < 7; i ++ ){
+        vect.push_back(i);
+    } 
+    int nw = 4;
+    AutonomicFarm<int,int>* afarm =  (new AutonomicFarmBuilder<int,int>())
+                                            ->useDefaultEmitter(&vect)
+                                            ->useDefaultCollector()
+                                            ->setNumberOfWorkers(nw)
+                                            ->setWorkerFunction(funz)
+                                            ->build();
 
-    vector<int*>* results = c->returnResults();
-
+    vector<int*>* results = afarm->runANDgetResults();
+    
     for(auto i = (*results).begin(); i != (*results).end(); i++){
         cout << **i << endl;;
     }

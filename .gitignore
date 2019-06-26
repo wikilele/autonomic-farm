@@ -13,3 +13,5 @@ report
 report/*
 
 !*.pdf
+
+*.sh

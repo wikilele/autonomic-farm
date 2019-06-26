@@ -16,7 +16,7 @@ using namespace std;
  */
 class AbstractWorker{ // FreezableWorker
     protected:
-        mutex                  freeze_mutex;
+        mutex                  freeze_mutex; // LOCK
         condition_variable     freeze_condition;
         bool freezed = false;
 
@@ -50,6 +50,7 @@ class AbstractWorker{ // FreezableWorker
         void waitIfFreezed(function<void(void)> doIfFreezed,
                             function<void(void)> doAfterWaiting,
                             function<void(void)> doIfNotFreezed ){
+                                
             unique_lock<mutex> lock(this->freeze_mutex);
             if (freezed == true){
                 doIfFreezed();
@@ -73,7 +74,7 @@ class AbstractWorker{ // FreezableWorker
 template <typename TIN, typename TOUT>
 class FarmWorker : public AbstractWorker{
     protected:
-        mutex                  task_mutex;
+        mutex                  task_mutex; // LOCK
         condition_variable     task_condition;
 
         function< TOUT* (TIN*)> user_task;
@@ -85,7 +86,8 @@ class FarmWorker : public AbstractWorker{
         
         void waitForTask(){
             unique_lock<mutex> lock(this->task_mutex);
-            this->task_condition.wait(lock, [=]{ return this->task != NULL; });
+            if (task == NULL)
+                this->task_condition.wait(lock, [=]{ return this->task != NULL; });
         }
         
         void returnResult(TOUT* result){
@@ -104,20 +106,22 @@ class FarmWorker : public AbstractWorker{
 
 
         void main_task(){
+            bool eos = false;
             // ready to start
-            cout << "READY\n";
             this->scheduler->getQueue()->push(pair<FarmWorker<TIN,TOUT>*, TOUT*>(this,NULL));
-            while(true){
+            while(!eos){
                 waitForTask();
                 // now task is guaranteed to be non null
 
-                // if TIN is EOS return TODO
-
-                TOUT* result = compute_result(task);
-                cout << "task computed\n";
-                task = NULL;
-                returnResult(result);
+                if(task == (TIN*)EOS) {
+                    eos = true;
+                } else {
+                    TOUT* result = compute_result(task);
+                    task = NULL;
+                    returnResult(result);
+                }
             }
+            return;
         }
 
     public:
@@ -135,10 +139,12 @@ class FarmWorker : public AbstractWorker{
         virtual TOUT* compute_result(TIN* input){
             return user_task(input); 
         }
-        
-        // ASSUME no concurrency
+
         void giveTaskANDnotify(TIN* t){
-            task = t;
+            {   
+                unique_lock<mutex> lock(this->task_mutex);
+                task = t;
+            }
             this->task_condition.notify_one();
         }
 

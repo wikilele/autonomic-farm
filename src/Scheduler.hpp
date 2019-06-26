@@ -7,6 +7,8 @@
 #include <thread>
 using namespace std;
 
+#define EOS 0xffff
+
 template <typename TIN, typename TOUT>
 class FarmWorker;
 
@@ -42,7 +44,7 @@ class Scheduler{
                     task_collected ++;
                     collector->pushResult(result);
                 }
-
+                // TODO COMPUTE SERVICE TIME AND TAKE DECISION
                 readyworker->giveTaskANDnotify(task);
                 
             }
@@ -50,11 +52,16 @@ class Scheduler{
             // waiting the last workers
             while(task_collected < total_task_number){
                 pair<FarmWorker<TIN,TOUT>*, TOUT*> popped_pair = queue.pop();
+                // unpacking the pair
+                FarmWorker<TIN,TOUT>* readyworker = popped_pair.first;
                 TOUT* result = popped_pair.second;
                 if (result != NULL){
                     task_collected ++;
+                    
                     collector->pushResult(result);
                 }
+
+                readyworker->giveTaskANDnotify((TIN*) EOS);
             }
         }
 };
