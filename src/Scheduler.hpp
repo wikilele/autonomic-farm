@@ -4,6 +4,7 @@
 #include <src/queue/Queue.hpp>
 #include <src/Emitter.hpp>
 #include <src/Collector.hpp>
+#include <src/Monitor.hpp>
 #include <thread>
 using namespace std;
 
@@ -19,11 +20,15 @@ class MasterWorkerScheduler{
 
         IEmitter<TIN>* emitter;
         ICollector<TOUT>* collector;
+        Monitor* monitor;
 
     public:
-        MasterWorkerScheduler(IEmitter<TIN>* emit, ICollector<TOUT>* collect){
+        MasterWorkerScheduler(IEmitter<TIN>* emit,
+                                ICollector<TOUT>* collect,
+                                Monitor* mon){
             emitter = emit;
             collector = collect;
+            monitor = mon;
         }
 
         void enqueue(FarmWorker<TIN,TOUT>* fw, TOUT* result){
@@ -35,6 +40,8 @@ class MasterWorkerScheduler{
             int total_task_number = 0;
             int task_collected = 0;
 
+            monitor->init();   
+                     
             while(more_items) {                
                 // popping all the waiting workers allows to lock the queue just one time
                 // and process more element, istead of lock - process - lock - process ....
@@ -47,7 +54,8 @@ class MasterWorkerScheduler{
 
                     if (result != NULL){
                         task_collected ++;
-                         // TODO COMPUTE SERVICE TIME AND TAKE DECISION
+                        // TODO COMPUTE SERVICE TIME AND TAKE DECISION
+                        monitor->notify(); // TODO check if it's the right place
                         collector->pushResult(result);
                     }
                    

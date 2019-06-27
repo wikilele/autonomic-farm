@@ -10,18 +10,21 @@ class AutonomicFarm{
         ICollector<TOUT>* collector;
         MasterWorkerScheduler<TIN,TOUT>* scheduler;
         FarmWorkerPool<TIN,TOUT>* workerpool;
+        Monitor* monitor;
     
     public:
 
         AutonomicFarm( IEmitter<TIN>* e,
                         ICollector<TOUT>* c,
                         MasterWorkerScheduler<TIN,TOUT>* sched,
-                        FarmWorkerPool<TIN,TOUT>* wp){
+                        FarmWorkerPool<TIN,TOUT>* wp,
+                        Monitor* mon){
             
             emitter = e;
             collector = c;
             scheduler = sched;
             workerpool = wp;
+            monitor = mon;
         }
 
         vector<TOUT*>* runANDgetResults(){

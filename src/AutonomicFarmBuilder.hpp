@@ -7,6 +7,8 @@ class AutonomicFarmBuilder{
     int numberOfworkers;
     IEmitter<TIN>* emitter;
     ICollector<TOUT>* collector;
+    Monitor* monitor;
+    IMonitorStrategy* mstrategy;
     function< TOUT* (TIN*)> user_function;
     public:
         AutonomicFarmBuilder(){}
@@ -31,15 +33,21 @@ class AutonomicFarmBuilder{
             return this;
         }
 
+        AutonomicFarmBuilder<TIN,TOUT>* useDefaultMonitorStrategy(){
+            mstrategy = new DefaultMonitorStrategy();
+            monitor = new Monitor(mstrategy);
+        }
+
 
         AutonomicFarm<TIN,TOUT>* build(){
-            MasterWorkerScheduler<TIN,TOUT>* scheduler = new MasterWorkerScheduler<TIN,TOUT>(emitter,collector);
+            MasterWorkerScheduler<TIN,TOUT>* scheduler = new MasterWorkerScheduler<TIN,TOUT>(emitter,collector,monitor);
             FarmWorkerPool<TIN,TOUT>* workerpool = new FarmWorkerPool<TIN,TOUT>(scheduler,user_function);
             workerpool->initPool(numberOfworkers);
             AutonomicFarm<TIN,TOUT>* afarm = new AutonomicFarm<TIN,TOUT>(emitter,
                                                     collector,
                                                     scheduler,
-                                                    workerpool);
+                                                    workerpool,
+                                                    monitor);
             
             return afarm;
         }
