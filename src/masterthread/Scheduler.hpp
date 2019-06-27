@@ -2,9 +2,9 @@
 #define SCHEDULER_HPP
 
 #include <src/queue/Queue.hpp>
-#include <src/Emitter.hpp>
-#include <src/Collector.hpp>
-#include <src/Monitor.hpp>
+#include <src/masterthread/Emitter.hpp>
+#include <src/masterthread/Collector.hpp>
+#include <src/monitor/Monitor.hpp>
 #include <thread>
 using namespace std;
 

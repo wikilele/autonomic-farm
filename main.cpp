@@ -1,6 +1,6 @@
 #include <iostream>
 #include <src/AutonomicFarmBuilder.hpp>
- #include <assert.h>
+#include <assert.h>
 
 auto funz = [](int* x) -> int*{
     return new int(*x + 1);

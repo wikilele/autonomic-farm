@@ -1,7 +1,7 @@
 
 
-#include <src/Scheduler.hpp>
-#include <src/WorkerPool.hpp>
+#include <src/masterthread/Scheduler.hpp>
+#include <src/workers/WorkerPool.hpp>
 
 template <typename TIN, typename TOUT>
 class AutonomicFarm{

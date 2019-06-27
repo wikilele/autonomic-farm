@@ -1,7 +1,7 @@
 #ifndef WORKERPOOL_HPP
 #define WORKERPOOL_HPP
 
-#include <src/FarmWorker.hpp>
+#include <src/workers/FarmWorker.hpp>
 #include <vector>
 #include <thread>
 using namespace std;

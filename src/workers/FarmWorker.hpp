@@ -2,12 +2,11 @@
 #define FARMWORKER_HPP
 
 #include <iostream>
-#include <src/Scheduler.hpp>
+#include <src/masterthread/Scheduler.hpp>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 #include <functional>
- #include <assert.h>
 using namespace std;
 
 /**

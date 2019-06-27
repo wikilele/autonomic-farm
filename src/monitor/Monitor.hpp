@@ -1,6 +1,6 @@
 #ifndef MONITOR_HPP
 #define MONITOR_HPP
-#include <src/MonitorStrategy.hpp>
+#include <src/monitor/MonitorStrategy.hpp>
 
 class Monitor{
 
