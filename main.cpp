@@ -12,7 +12,6 @@ auto activewait = [](int *x) ->int*{
     while (true)  {
       auto elapsed = chrono::high_resolution_clock::now() - start;
       long long microseconds = chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-
       if (microseconds >= 1000* (*x)) break;
     }
     return x;
@@ -30,19 +29,16 @@ int main(int argc, char * argv[]){
 
     // check input parameters
     vector<int*> vect;
-    for(int i = 0; i < 10; i ++ ){
-        vect.push_back(new int(1));
+    for(int i = 0; i < 1000; i ++ ){
+        vect.push_back(new int(4));
     } 
-
-    nw = 4;
-    throughput = 4.0;
     
-    for(int i = 0; i < 10; i ++ ){
+    for(int i = 0; i < 1000; i ++ ){
         vect.push_back(new int(1));
     }
 
-    for(int i = 0; i < 10; i ++ ){
-        vect.push_back(new int(1));
+    for(int i = 0; i < 1000; i ++ ){
+        vect.push_back(new int(8));
     }
    
     AutonomicFarm<int,int>* afarm =  (new AutonomicFarmBuilder<int,int>())
@@ -50,8 +46,7 @@ int main(int argc, char * argv[]){
                                             ->useDefaultCollector()
                                             ->setNumberOfWorkers(nw)
                                             ->setWorkerFunction(activewait)
-                                            ->setExpectedThroughput(throughput)
-                                            ->useDumbMonitorStrategy()
+                                            ->useDefaultMonitorStrategy(throughput)
                                             ->build();
 
     vector<int*>* results = afarm->runANDgetResults();

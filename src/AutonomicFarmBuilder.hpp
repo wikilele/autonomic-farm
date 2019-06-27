@@ -8,7 +8,7 @@ class AutonomicFarmBuilder{
     IEmitter<TIN>* emitter;
     ICollector<TOUT>* collector;
     Monitor* monitor;
-    float expected_throughput = 0;
+    float expected_throughput;
     IMonitorStrategy* mstrategy;
     function< TOUT* (TIN*)> user_function;
     public:
@@ -34,24 +34,20 @@ class AutonomicFarmBuilder{
             return this;
         }
 
-        AutonomicFarmBuilder<TIN,TOUT>* useDefaultMonitorStrategy(){
-            mstrategy = new DefaultMonitorStrategy();
+        AutonomicFarmBuilder<TIN,TOUT>* useDefaultMonitorStrategy(float  expected_throughput){
+            this->expected_throughput = expected_throughput;
+            mstrategy = new DefaultMonitorStrategy( expected_throughput);
             return this;  
         }
 
-        AutonomicFarmBuilder<TIN,TOUT>* useDumbMonitorStrategy(){
-            mstrategy = new DumbMonitorStrategy();
+        AutonomicFarmBuilder<TIN,TOUT>* useDumbMonitorStrategy(float expected_throuhput){
+            this->expected_throughput = expected_throuhput;
+            mstrategy = new DumbMonitorStrategy( expected_throughput);
             return this;  
         }
-
-        AutonomicFarmBuilder<TIN,TOUT>* setExpectedThroughput(float et){
-            expected_throughput = et;
-            return this;
-        }
-
 
         AutonomicFarm<TIN,TOUT>* build(){
-            monitor = new Monitor(mstrategy, expected_throughput);
+            monitor = new Monitor(mstrategy, this->expected_throughput);
             MasterWorkerScheduler<TIN,TOUT>* scheduler = new MasterWorkerScheduler<TIN,TOUT>(emitter,collector,monitor);
             FarmWorkerPool<TIN,TOUT>* workerpool = new FarmWorkerPool<TIN,TOUT>(scheduler,user_function);
 

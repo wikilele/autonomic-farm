@@ -13,6 +13,8 @@ using namespace std;
 template <typename TIN, typename TOUT>
 class FarmWorker;
 
+// TODO stick it on core to gain performances
+
 template <typename TIN, typename TOUT>
 class MasterWorkerScheduler{
     protected:
