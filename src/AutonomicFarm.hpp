@@ -8,14 +8,14 @@ class AutonomicFarm{
     protected:
         IEmitter<TIN>* emitter;
         ICollector<TOUT>* collector;
-        Scheduler<TIN,TOUT>* scheduler;
+        MasterWorkerScheduler<TIN,TOUT>* scheduler;
         FarmWorkerPool<TIN,TOUT>* workerpool;
     
     public:
 
         AutonomicFarm( IEmitter<TIN>* e,
                         ICollector<TOUT>* c,
-                        Scheduler<TIN,TOUT>* sched,
+                        MasterWorkerScheduler<TIN,TOUT>* sched,
                         FarmWorkerPool<TIN,TOUT>* wp){
             
             emitter = e;

@@ -11,7 +11,7 @@ class AutonomicFarmBuilder{
     public:
         AutonomicFarmBuilder(){}
 
-        AutonomicFarmBuilder<TIN,TOUT>* useDefaultEmitter(vector<TIN>* vect){
+        AutonomicFarmBuilder<TIN,TOUT>* useDefaultEmitter(vector<TIN*>* vect){
             emitter = new DefaultEmitter<TIN>(vect);
             return this;
         }
@@ -33,7 +33,7 @@ class AutonomicFarmBuilder{
 
 
         AutonomicFarm<TIN,TOUT>* build(){
-            Scheduler<TIN,TOUT>* scheduler = new Scheduler<TIN,TOUT>(emitter,collector);
+            MasterWorkerScheduler<TIN,TOUT>* scheduler = new MasterWorkerScheduler<TIN,TOUT>(emitter,collector);
             FarmWorkerPool<TIN,TOUT>* workerpool = new FarmWorkerPool<TIN,TOUT>(scheduler,user_function);
             workerpool->initPool(numberOfworkers);
             AutonomicFarm<TIN,TOUT>* afarm = new AutonomicFarm<TIN,TOUT>(emitter,

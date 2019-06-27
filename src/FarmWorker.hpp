@@ -7,6 +7,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <functional>
+ #include <assert.h>
 using namespace std;
 
 /**
@@ -20,9 +21,8 @@ class AbstractWorker{ // FreezableWorker
         condition_variable     freeze_condition;
         bool freezed = false;
 
-        // the thread executing the business logic fucntion
+        // the thread executing the farm logic fucntion
         thread worker_thread;
-
 
         void setFreezed(bool val){
             unique_lock<mutex> lock(this->freeze_mutex);
@@ -30,23 +30,15 @@ class AbstractWorker{ // FreezableWorker
         }
 
         /**
-         * This function will be implemented by a subclass
-         * It will manage getting the task, calling the user defined 
-         * function (i.e. lambda function) 
-         * and will return the result
-        */ 
-        virtual void main_task(){return;};
-
-    public:      
-        void freeze(){
-            setFreezed(true);
-        }
-
-        // the correct term would be defrost
-        void unfreeze(){
-            setFreezed(false);
-        }
-
+         * This function checks if the worker is freezed and applies
+         * the functions provided by the subclass
+         * 
+         * @param doIfFreezed - is called just before waiting to be defrosted
+         * @param doAfterWaiting - is called after the defrost
+         * @param doIfNotFreezed - is called if the thread is not freezed
+         * 
+         * CARE the three function must avoid possible deadlocks
+         */
         void waitIfFreezed(function<void(void)> doIfFreezed,
                             function<void(void)> doAfterWaiting,
                             function<void(void)> doIfNotFreezed ){
@@ -59,6 +51,22 @@ class AbstractWorker{ // FreezableWorker
             } else {
                 doIfNotFreezed();
             } 
+        }
+
+        /**
+         * This function needs to be be implemented by a subclass
+         * It will manage getting the task, calling the user defined 
+         * function (i.e. lambda function) and it will return the result
+        */ 
+        virtual void main_task(){};
+
+    public:      
+        void freeze(){
+            setFreezed(true);
+        }
+
+        void unfreeze(){ // the correct term would be defrost
+            setFreezed(false);
         }
 
         void start(){
@@ -76,30 +84,34 @@ class FarmWorker : public AbstractWorker{
     protected:
         mutex                  task_mutex; // LOCK
         condition_variable     task_condition;
-
+        // business logic code 
         function< TOUT* (TIN*)> user_task;
         // task to be computed
         TIN* task = NULL;
 
-        Scheduler<TIN,TOUT>* scheduler;
-
+        MasterWorkerScheduler<TIN,TOUT>* scheduler;
         
+        /**
+         * After this functiontask is guaranteed to be non NULL
+         */
         void waitForTask(){
             unique_lock<mutex> lock(this->task_mutex);
             if (task == NULL)
                 this->task_condition.wait(lock, [=]{ return this->task != NULL; });
         }
-        
+
         void returnResult(TOUT* result){
+            // enqueuing just the result beacuse then the worker will wait to de defrosted
             auto doIfFreezed = [this,result](void){
-                this->scheduler->getQueue()->push(pair<FarmWorker<TIN,TOUT>*, TOUT*>(NULL,result));
+                this->scheduler->enqueue(NULL,result);
             };
+            // once defrosted the  worker is ready again 
             auto doAfterWaiting = [this](void){
-                // ready again
-                this->scheduler->getQueue()->push(pair<FarmWorker<TIN,TOUT>*, TOUT*>(this,NULL));
+                this->scheduler->enqueue(this,NULL);
             };
+            // enquuing both the worker to get the next task and the result to collect it
             auto doIfNotFreezed = [this,result](void){
-                this->scheduler->getQueue()->push(pair<FarmWorker<TIN,TOUT>*, TOUT*>(this,result));
+                this->scheduler->enqueue(this,result);
             };
             waitIfFreezed(doIfFreezed, doAfterWaiting, doIfNotFreezed);
         }
@@ -108,15 +120,16 @@ class FarmWorker : public AbstractWorker{
         void main_task(){
             bool eos = false;
             // ready to start
-            this->scheduler->getQueue()->push(pair<FarmWorker<TIN,TOUT>*, TOUT*>(this,NULL));
+            this->scheduler->enqueue(this,NULL);
             while(!eos){
                 waitForTask();
                 // now task is guaranteed to be non null
 
-                if(task == (TIN*)EOS) {
+                if(task == (TIN*)EOS){
                     eos = true;
                 } else {
-                    TOUT* result = compute_result(task);
+                    // applying business logic code given by the user
+                    TOUT* result = user_task(task);
                     task = NULL;
                     returnResult(result);
                 }
@@ -125,19 +138,9 @@ class FarmWorker : public AbstractWorker{
         }
 
     public:
-        FarmWorker(Scheduler<TIN,TOUT>* sched): AbstractWorker(){
-            scheduler = sched;
-        }
-
-
-        FarmWorker( Scheduler<TIN,TOUT>* sched, function< TOUT* (TIN*)> ufunc): AbstractWorker() {
+        FarmWorker( MasterWorkerScheduler<TIN,TOUT>* sched, function< TOUT* (TIN*)> ufunc): AbstractWorker() {
             scheduler = sched;
             user_task = ufunc;
-        }
-
-        // this function can be redefined by the framework user
-        virtual TOUT* compute_result(TIN* input){
-            return user_task(input); 
         }
 
         void giveTaskANDnotify(TIN* t){
