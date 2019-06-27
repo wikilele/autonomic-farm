@@ -46,7 +46,7 @@ class MasterWorkerScheduler{
                 // popping all the waiting workers allows to lock the queue just one time
                 // and process more element, istead of lock - process - lock - process ....
                 vector<pair<FarmWorker<TIN,TOUT>*, TOUT*>> poppedpairs_vector = queue.popAll();
-                
+
                 for (auto iter = poppedpairs_vector.begin(); iter != poppedpairs_vector.end(); iter ++){
                     // unpacking the pair
                     FarmWorker<TIN,TOUT>* readyworker = (*iter).first;
@@ -54,8 +54,6 @@ class MasterWorkerScheduler{
 
                     if (result != NULL){
                         task_collected ++;
-                        // TODO COMPUTE SERVICE TIME AND TAKE DECISION
-                        monitor->notify(); // TODO check if it's the right place
                         collector->pushResult(result);
                     }
                    
@@ -70,6 +68,10 @@ class MasterWorkerScheduler{
                         }
                     }
                 }
+
+                //COMPUTE SERVICE TIME AND TAKE DECISION
+                if (task_collected > 0)
+                    monitor->notify(task_collected); 
             }
       
             // waiting the last workers

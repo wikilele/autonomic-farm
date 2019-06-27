@@ -6,6 +6,7 @@
 #include <thread>
 using namespace std;
 
+// TODO join workers
 
 class AbstractWorkerPool{
     protected:
@@ -33,7 +34,7 @@ class AbstractWorkerPool{
             if(actual_workers < farm_workers.size()){
                 // wake up a worker
                 // start counting from 0
-                farm_workers.at(actual_workers - 1)->unfreeze();
+                farm_workers.at(actual_workers )->unfreeze();
             } else{
                 spawnANDstartWorker();
             }
@@ -41,9 +42,13 @@ class AbstractWorkerPool{
         }
 
         void freezeWorker(){
+            if (actual_workers - 1 < 0) return; // TODO remove this PATCH
             farm_workers.at(actual_workers - 1)->freeze();
             actual_workers --;
         }
+
+        int getActualWorkers(){ return actual_workers; }
+        int getTotalWorkers(){ return farm_workers.size();}
 
         virtual AbstractWorker* spawnWorker() = 0;
 };

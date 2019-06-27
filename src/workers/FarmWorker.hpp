@@ -9,6 +9,11 @@
 #include <functional>
 using namespace std;
 
+#define EOS 0xffff
+
+template <typename TIN, typename TOUT>
+class MasterWorkerScheduler;
+
 /**
  * This class manages the thread set up and the possibility
  * to freeze it
@@ -25,8 +30,9 @@ class AbstractWorker{ // FreezableWorker
 
         void setFreezed(bool val){
             unique_lock<mutex> lock(this->freeze_mutex);
-            freezed = val; // TODO check this better dunno if locks can be good
+            freezed = val;
         }
+
 
         /**
          * This function checks if the worker is freezed and applies
@@ -66,6 +72,7 @@ class AbstractWorker{ // FreezableWorker
 
         void unfreeze(){ // the correct term would be defrost
             setFreezed(false);
+            this->freeze_condition.notify_one();
         }
 
         void start(){
