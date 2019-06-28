@@ -85,7 +85,7 @@ class MasterWorkerScheduler{
                     }
                 }
 
-                //COMPUTE SERVICE TIME AND TAKE DECISION
+                //Copute service time and take a decision
                 if (task_collected > 0)
                     monitor->notify(task_collected); 
             }

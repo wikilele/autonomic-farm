@@ -5,6 +5,11 @@ Catch2/*
 !main.cpp
 main-default
 main-updown
+main-costant
+main-halfdefault
+main-highlow
+main-lowhigh
+
 testmain
 tests
 tests/*
@@ -16,6 +21,11 @@ report
 report/*
 
 !*.pdf
+
+!build.sh
+
+build/*
+
 
 *.sh
 *.o

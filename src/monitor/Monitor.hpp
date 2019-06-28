@@ -10,6 +10,7 @@ class Monitor{
     protected:
         // task/milliseconds
         float expected_throughput;
+        float previous_throughput;
         IMonitorStrategy* mstrategy;
         AbstractWorkerPool* workerpool;
         
@@ -20,6 +21,7 @@ class Monitor{
         Monitor(IMonitorStrategy* ms, float et){
             mstrategy = ms;
             expected_throughput = et;
+            previous_throughput = et;
             old_taskcollected = 0;
         }
 
@@ -32,33 +34,40 @@ class Monitor{
         }
 
         void notify(int task_collected){
+            float throughput;
+
             auto now = chrono::high_resolution_clock::now();
             auto elapsed = now - start;
             
-            float elapsed_milliseconds = chrono::duration_cast<std::chrono::microseconds>(elapsed).count()/1000;
+            float elapsed_milliseconds = (long int)chrono::duration_cast<std::chrono::microseconds>(elapsed).count()/1000.0;
             
-            if (elapsed_milliseconds != 0){
-                // TODO somethign strange here
-                float throughput = (task_collected - old_taskcollected )/ elapsed_milliseconds  ;
+           // TODO
+            if (elapsed_milliseconds >= 0.500){
+                // kind of patch 
+                throughput = (task_collected - old_taskcollected )/ elapsed_milliseconds;
+                previous_throughput = throughput;
+            } else {
+                throughput = previous_throughput;
+            }
                 
-                int command = mstrategy->addWorker(throughput);
+            int command = mstrategy->addWorker(throughput);
                 
-                if (command & ADDWORKER){
-                    workerpool->addWorker();
-                }else if (command & REMOVEWORKER){   
-                    workerpool->freezeWorker();
-                } 
+            if (command & ADDWORKER){
+                workerpool->addWorker();
+            }else if (command & REMOVEWORKER){   
+                workerpool->freezeWorker();
+            } 
                 
-                printf("EXPT %.1f - T %.2f - ANW %d - TOTNW %d \n", expected_throughput,
+            printf("EXPT %.1f - T %.2f - ANW %d - TOTNW %d \n", expected_throughput,
                                                             throughput,
                                                             workerpool->getActualWorkers(),
                                                             workerpool->getTotalWorkers());
                 
-                if (command & REFRESH_THROUGHPUT){
-                    start = chrono::high_resolution_clock::now(); 
-                    old_taskcollected = task_collected;
-                }
+            if (command & REFRESH_THROUGHPUT){
+                start = chrono::high_resolution_clock::now(); 
+                old_taskcollected = task_collected;
             }
+            
 
             return;
         }

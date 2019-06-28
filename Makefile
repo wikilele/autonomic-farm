@@ -1,32 +1,64 @@
-
+BUILD_DIR = build
 INPUTVECTOR_DIR = lib/inputvectors
+DEFAULT_VEC = $(INPUTVECTOR_DIR)/defaultvector
+UPDOWN_VEC = $(INPUTVECTOR_DIR)/updownvector
+HALFDEFAULT_VEC = $(INPUTVECTOR_DIR)/halfdefaultvector
+COSTANT_VEC = $(INPUTVECTOR_DIR)/costantvector
+HIGHLOW_VEC = $(INPUTVECTOR_DIR)/highlowvector
+LOWHIGH_VEC = $(INPUTVECTOR_DIR)/lowhighvector
+
+
+# each main-* file gets a different vector in input
 
 main-default: main.cpp default-inputvector
-	g++ -o main-default main.cpp $(INPUTVECTOR_DIR)/defaultvector.o -lpthread -I. 
+	g++ -o $(BUILD_DIR)/main-default main.cpp $(BUILD_DIR)/$(DEFAULT_VEC).o -lpthread -I. 
 
 main-updown: main.cpp updown-inputvector
-	g++ -o main-updown main.cpp $(INPUTVECTOR_DIR)/updownvector.o -lpthread -I. 
+	g++ -o $(BUILD_DIR)/main-updown main.cpp $(BUILD_DIR)/$(UPDOWN_VEC).o -lpthread -I. 
 
-default-inputvector: $(INPUTVECTOR_DIR)/defaultvector.cpp
-	g++ -c $(INPUTVECTOR_DIR)/defaultvector.cpp -I. -o $(INPUTVECTOR_DIR)/defaultvector.o
+main-halfdefault: main.cpp halfdefault-inputvector
+	g++ -o $(BUILD_DIR)/main-halfdefault main.cpp $(BUILD_DIR)/$(HALFDEFAULT_VEC).o -lpthread -I. 
 
-updown-inputvector: $(INPUTVECTOR_DIR)/updownvector.cpp
-	g++ -c $(INPUTVECTOR_DIR)/updownvector.cpp -I. -o $(INPUTVECTOR_DIR)/updownvector.o
+main-costant:  main.cpp costant-inputvector
+	g++ -o $(BUILD_DIR)/main-costant main.cpp $(BUILD_DIR)/$(COSTANT_VEC).o -lpthread -I. 
 
+main-highlow: main.cpp highlow-inputvector
+	g++ -o $(BUILD_DIR)/main-highlow main.cpp $(BUILD_DIR)/$(HIGHLOW_VEC).o -lpthread -I. 
 
-
-
-testmain: testmain.cpp testEmitter testCollector
-	g++ -o testmain testmain.cpp
-
-testEmitter: tests/testEmitter.cpp
-	g++ -c tests/testEmitter.cpp -I.
-
-testCollector: tests/testCollector.cpp
-	g++ -c tests/testCollector.cpp -I.
-
-all: main-default main-updown
+main-lowhigh: main.cpp lowhigh-inputvector
+	g++ -o $(BUILD_DIR)/main-lowhigh main.cpp $(BUILD_DIR)/$(LOWHIGH_VEC).o -lpthread -I. 
 
 
-clean:
-	rm main-default main-updown $(INPUTVECTOR_DIR)/defaultvector.o $(INPUTVECTOR_DIR)/updownvector.o
+# "libraries" to get different vectors in input
+
+default-inputvector: $(DEFAULT_VEC).cpp
+	g++ -c $(DEFAULT_VEC).cpp -I. -o $(BUILD_DIR)/$(DEFAULT_VEC).o
+
+updown-inputvector: $(UPDOWN_VEC).cpp
+	g++ -c $(UPDOWN_VEC).cpp -I. -o $(BUILD_DIR)/$(UPDOWN_VEC).o
+
+halfdefault-inputvector: $(HALFDEFAULT_VEC).cpp
+	g++ -c $(HALFDEFAULT_VEC).cpp -I. -o $(BUILD_DIR)/$(HALFDEFAULT_VEC).o
+
+costant-inputvector: $(COSTANT_VEC).cpp
+	g++ -c $(COSTANT_VEC).cpp -I. -o $(BUILD_DIR)/$(COSTANT_VEC).o
+
+highlow-inputvector: $(HIGHLOW_VEC).cpp
+	g++ -c $(HIGHLOW_VEC).cpp -I. -o $(BUILD_DIR)/$(HIGHLOW_VEC).o
+
+lowhigh-inputvector: $(LOWHIGH_VEC).cpp
+	g++ -c $(LOWHIGH_VEC).cpp -I. -o $(BUILD_DIR)/$(LOWHIGH_VEC).o
+
+
+
+
+all: main-default main-updown main-halfdefault main-costant main-highlow main-lowhigh
+
+clean: clean-o 
+	rm $(BUILD_DIR)/main-default $(BUILD_DIR)/main-updown $(BUILD_DIR)/main-halfdefault	\
+		$(BUILD_DIR)/main-costant $(BUILD_DIR)/main-highlow $(BUILD_DIR)/main-lowhigh
+
+clean-o:
+	rm $(BUILD_DIR)/$(DEFAULT_VEC).o $(BUILD_DIR)/$(UPDOWN_VEC).o $(BUILD_DIR)/$(HALFDEFAULT_VEC).o	\
+		  $(BUILD_DIR)/$(COSTANT_VEC).o $(BUILD_DIR)/$(HIGHLOW_VEC).o $(BUILD_DIR)/$(LOWHIGH_VEC).o
+
