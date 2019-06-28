@@ -27,7 +27,6 @@ report/*
 build/*
 
 
-*.sh
 *.o
 
 results.txt
