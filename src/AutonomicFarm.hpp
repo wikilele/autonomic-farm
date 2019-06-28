@@ -29,6 +29,11 @@ class AutonomicFarm{
 
         vector<TOUT*>* runANDgetResults(){
             scheduler->schedule();
+            // relasing the threads correctly          
+            int remaining_workers = workerpool->unfreezeRemainingWorkers();
+            scheduler->sendLastEOS(remaining_workers);
+            workerpool->joinPool();
+
             return collector->returnResults();
         }
 

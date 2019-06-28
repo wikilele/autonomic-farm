@@ -12,7 +12,6 @@ class Monitor{
         float expected_throughput;
         IMonitorStrategy* mstrategy;
         AbstractWorkerPool* workerpool;
-        unsigned concurentThreadsSupported = std::thread::hardware_concurrency();
         
         chrono::high_resolution_clock::time_point start; // when starting to count time  
         int old_taskcollected; // allows to refresh the actual throughput
@@ -39,22 +38,15 @@ class Monitor{
             float elapsed_milliseconds = chrono::duration_cast<std::chrono::microseconds>(elapsed).count()/1000;
             
             if (elapsed_milliseconds != 0){
+                // TODO somethign strange here
                 float throughput = (task_collected - old_taskcollected )/ elapsed_milliseconds  ;
                 
                 int command = mstrategy->addWorker(throughput);
                 
                 if (command & ADDWORKER){
-                    if (workerpool->getTotalWorkers() < concurentThreadsSupported){
-                        cout << "ADDWORKER\n";
-                        workerpool->addWorker();
-                    }
-                }else if (command & REMOVEWORKER){
-                    if (workerpool->getActualWorkers() > 1){
-                        cout << "REMOVEWORKER\n";
-                        workerpool->freezeWorker();
-                    }
-                    old_taskcollected = task_collected;
-                    start = chrono::high_resolution_clock::now();
+                    workerpool->addWorker();
+                }else if (command & REMOVEWORKER){   
+                    workerpool->freezeWorker();
                 } 
                 
                 printf("EXPT %.1f - T %.2f - ANW %d - TOTNW %d \n", expected_throughput,

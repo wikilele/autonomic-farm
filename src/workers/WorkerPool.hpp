@@ -6,13 +6,13 @@
 #include <thread>
 using namespace std;
 
-// TODO join workers
-
 class AbstractWorkerPool{
     protected:
         vector<AbstractWorker*> farm_workers;
         // number of non freezed workers, always <= farm_workers size
         int actual_workers; 
+        unsigned concurentThreadsSupported = std::thread::hardware_concurrency();
+
 
         void spawnANDstartWorker(){
             AbstractWorker* abworker = spawnWorker();
@@ -29,21 +29,51 @@ class AbstractWorkerPool{
             actual_workers = nw;
         }
 
+        void joinPool(){
+            for(int i = 0; i < farm_workers.size(); i++){
+                (farm_workers[i])->join();
+            }
+        }
 
-        void addWorker(){
+
+        void addWorker(){          
             if(actual_workers < farm_workers.size()){
                 // wake up a worker
                 // start counting from 0
                 farm_workers.at(actual_workers )->unfreeze();
-            } else{
+                actual_workers ++;
+                cout << "ADDWORKER\n";
+            } else if (this->getTotalWorkers() < concurentThreadsSupported){
                 spawnANDstartWorker();
-            }
-            actual_workers ++;
+                actual_workers ++;
+
+                cout << "ADDWORKER\n";
+            }     
         }
 
         void freezeWorker(){
-            farm_workers.at(actual_workers - 1)->freeze();
-            actual_workers --;
+            if (actual_workers > 1){
+                 cout << "REMOVEWORKER\n";
+                farm_workers.at(actual_workers - 1)->freeze();
+                actual_workers --;
+            }
+        }
+
+        /**
+         * This function will be called at the end to release the workers properly
+         * 
+         * @return - the number of worker defrosted
+         */
+        int unfreezeRemainingWorkers(){
+            int unfreezed_workers = 0;;
+            for(int i = 0; i < farm_workers.size(); i++){
+                if (farm_workers[i]->isFreezed()){
+                    farm_workers[i]->unfreeze();
+                    unfreezed_workers ++;
+                }
+            }
+
+            return unfreezed_workers;
         }
 
         int getActualWorkers(){ return actual_workers; }
