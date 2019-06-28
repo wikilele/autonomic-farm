@@ -65,7 +65,12 @@ class AbstractWorker{ // FreezableWorker
         */ 
         virtual void main_task(){};
 
-    public:      
+    public:     
+        bool isFreezed(){
+            unique_lock<mutex> lock(this->freeze_mutex);
+            return freezed;
+        }
+
         void freeze(){
             setFreezed(true);
         }
