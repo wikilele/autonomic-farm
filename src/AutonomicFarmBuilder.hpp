@@ -1,10 +1,12 @@
 
 #include <src/AutonomicFarm.hpp>
+#include <src/monitor/DefaultMonitorStrategy.hpp>
 
 template <typename TIN, typename TOUT>
 class AutonomicFarmBuilder{
     protected:
     int numberOfworkers;
+    int inputsize = 0;
     IEmitter<TIN>* emitter;
     ICollector<TOUT>* collector;
     Monitor* monitor;
@@ -15,6 +17,7 @@ class AutonomicFarmBuilder{
         AutonomicFarmBuilder(){}
 
         AutonomicFarmBuilder<TIN,TOUT>* useDefaultEmitter(vector<TIN*>* vect){
+            inputsize = vect->size();
             emitter = new DefaultEmitter<TIN>(vect);
             return this;
         }
@@ -36,7 +39,14 @@ class AutonomicFarmBuilder{
 
         AutonomicFarmBuilder<TIN,TOUT>* useDefaultMonitorStrategy(float  expected_throughput){
             this->expected_throughput = expected_throughput;
-            mstrategy = new DefaultMonitorStrategy( expected_throughput);
+            
+            if (inputsize <= 0){
+                cout << "!!! The Emitter function should be called before this one !!!" << endl;
+                cout << "Exiting ...." << endl;
+                exit(-1);
+            }
+
+            mstrategy = new DefaultMonitorStrategy( expected_throughput, inputsize);
             return this;  
         }
 
