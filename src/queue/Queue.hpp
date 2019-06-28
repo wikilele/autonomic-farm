@@ -3,6 +3,7 @@
 #include <condition_variable>
 #include <deque>
 #include <vector>
+#include <iostream>
 using namespace std;
 
 template <typename T>
@@ -32,12 +33,14 @@ class Queue{
         }
 
         vector<T> popAll(){
-            vector<T> returnvect;
-            {
-                unique_lock<mutex> lock(this->d_mutex);
-                for (auto i = d_queue.begin(); i != d_queue.end(); ++i) {
-                    returnvect.push_back(d_queue.pop_front()); // TODO check if correct
-                }
+            vector<T> returnvect ;
+            
+            unique_lock<mutex> lock(this->d_mutex);
+            this->d_condition.wait(lock, [=]{ return !this->d_queue.empty(); });
+            int qsize = d_queue.size();
+            for (int i = 0; i < qsize; i++) {
+                returnvect.push_back(move(this->d_queue.front()));
+                this->d_queue.pop_front();
             }
             return returnvect;
         }

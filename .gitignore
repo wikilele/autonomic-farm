@@ -13,3 +13,8 @@ report
 report/*
 
 !*.pdf
+
+*.sh
+
+
+results.txt
