@@ -6,12 +6,12 @@ vector<int*>* getInputVector(){
     vector<int*>* returnvect = new vector<int*>();
     
     for(int i = 0; i < SECTION_SIZE; i ++ ){
-        returnvect->push_back(new int(8));
+        returnvect->push_back(new int(1));
     } 
     
     for(int i = 0; i < SECTION_SIZE; i ++ ){
-        returnvect->push_back(new int(1));
+        returnvect->push_back(new int(8));
     }
-        
+
     return returnvect;
 }
