@@ -42,7 +42,6 @@ class AbstractWorkerPool{
         }
 
         void freezeWorker(){
-            if (actual_workers - 1 < 0) return; // TODO remove this PATCH
             farm_workers.at(actual_workers - 1)->freeze();
             actual_workers --;
         }

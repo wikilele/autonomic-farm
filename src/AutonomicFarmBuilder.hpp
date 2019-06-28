@@ -40,12 +40,6 @@ class AutonomicFarmBuilder{
             return this;  
         }
 
-        AutonomicFarmBuilder<TIN,TOUT>* useDumbMonitorStrategy(float expected_throuhput){
-            this->expected_throughput = expected_throuhput;
-            mstrategy = new DumbMonitorStrategy( expected_throughput);
-            return this;  
-        }
-
         AutonomicFarm<TIN,TOUT>* build(){
             monitor = new Monitor(mstrategy, this->expected_throughput);
             MasterWorkerScheduler<TIN,TOUT>* scheduler = new MasterWorkerScheduler<TIN,TOUT>(emitter,collector,monitor);
