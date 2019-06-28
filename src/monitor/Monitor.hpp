@@ -62,7 +62,7 @@ class Monitor{
                                                             workerpool->getActualWorkers(),
                                                             workerpool->getTotalWorkers());
                 
-                if (command & REFRESH_THRESHOLD){
+                if (command & REFRESH_THROUGHPUT){
                     start = chrono::high_resolution_clock::now(); 
                     old_taskcollected = task_collected;
                 }

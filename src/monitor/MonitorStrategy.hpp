@@ -10,9 +10,8 @@
  * If that value is not refreshed periodically the actual threshold value might
  * be influenced by the previous computations leading to not so good values
  */
-#define REFRESH_THRESHOLD 8
-#define ADD_AND_REFRESH  (ADDWORKER | REFRESH_THRESHOLD)
-#define REM_AND_REFRESH (REMOVEWORKER | REFRESH_THRESHOLD)
+#define REFRESH_THROUGHPUT 8
+
 
 
 // TODO consider to define a threshold
@@ -42,6 +41,8 @@ class DefaultMonitorStrategy: public IMonitorStrategy{
         
         // how many times the window has been filled 
         int phase = 0;
+
+        int old_command = DONOTHING;
 
         /**
          * @return - it returns true if the window has been filled up
@@ -97,6 +98,23 @@ class DefaultMonitorStrategy: public IMonitorStrategy{
             return trend < - TREND_THRESHOLD;
         }
 
+        int avoidConsecutiveDisaccordingCommands(int command){
+             // this should avoid to do an ADD and a consecutive REMOVE
+            // ex.  old_command == 0100 == REMOVEWORKER
+            //      command == 1010 == ADDWORKER | REFRESH_THROUGHPUT
+            //      command = 1000 = 1010 & 1101 = 1010 & ~ADDWORKER 
+            if(old_command & REMOVEWORKER)
+                command = command & ~ADDWORKER;
+            else if (old_command & ADDWORKER)
+                command = command & ~REMOVEWORKER;
+            
+            //      old_command = 0000 = 1000 & 0111 = 1000 & ~REFRESH_THROUGHPUT
+            //      this may reset the old_command to DONOTHING so that next time everything is allowed
+            old_command = command & ~REFRESH_THROUGHPUT;
+
+            return command;
+        }
+
     public:
         DefaultMonitorStrategy(float exp_t): IMonitorStrategy(exp_t){};
 
@@ -136,15 +154,15 @@ class DefaultMonitorStrategy: public IMonitorStrategy{
 
                     }
 
-                    command = command | REFRESH_THRESHOLD;
+                    command = command | REFRESH_THROUGHPUT;
                 }
+
+               command = avoidConsecutiveDisaccordingCommands(command);
             }
 
             return command;
         }
 };
-
-
 
 
 #endif /* MONITORSTRATEGY_HPP */
