@@ -1,7 +1,10 @@
 .vscode/
 Catch2
 Catch2/*
-main
+
+!main.cpp
+main-default
+main-updown
 testmain
 tests
 tests/*
@@ -15,6 +18,6 @@ report/*
 !*.pdf
 
 *.sh
-
+*.o
 
 results.txt
