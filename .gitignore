@@ -1,6 +1,4 @@
 .vscode/
-Catch2
-Catch2/*
 
 !main.cpp
 main-default
@@ -10,23 +8,15 @@ main-halfdefault
 main-highlow
 main-lowhigh
 
-testmain
-tests
-tests/*
-testmain.cpp
-
-src/queue/Queue.cpp
-
-report
 report/*
 
 !*.pdf
 
 !build.sh
+!run.sh
+!plot.sh
 
 build/*
-
+results/*
 
 *.o
-
-results.txt
