@@ -42,18 +42,18 @@ class AbstractWorkerPool{
                 // start counting from 0
                 farm_workers.at(actual_workers )->unfreeze();
                 actual_workers ++;
-                cout << "ADDWORKER\n";
+                //cout << "ADDWORKER\n";
             } else if (this->getTotalWorkers() < concurentThreadsSupported){
                 spawnANDstartWorker();
                 actual_workers ++;
 
-                cout << "ADDWORKER\n";
+                //cout << "ADDWORKER\n";
             }     
         }
 
         void freezeWorker(){
             if (actual_workers > 1){
-                 cout << "REMOVEWORKER\n";
+                //cout << "REMOVEWORKER\n";
                 farm_workers.at(actual_workers - 1)->freeze();
                 actual_workers --;
             }

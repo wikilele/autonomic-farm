@@ -101,9 +101,9 @@ class DefaultMonitorStrategy: public IMonitorStrategy{
 
     public:
         DefaultMonitorStrategy(float exp_t, int inputsize): IMonitorStrategy(exp_t){
-            this->WINDOW_SIZE = 40 ; // 30 - 50 getting better results
+            this->WINDOW_SIZE = inputsize/100; // 30 - 50 getting better results
             this->AVG_THRESHOLD = exp_t* 1/10;
-            this->TREND_THRESHOLD = exp_t* 1/10;
+            this->TREND_THRESHOLD = exp_t* 2/10;
             past_throughputs = new vector<float>(WINDOW_SIZE);
         }
 
@@ -124,7 +124,7 @@ class DefaultMonitorStrategy: public IMonitorStrategy{
                     // so there is nothing to do
                     command = DONOTHING;
                 } else {
-                    printf("trend %.2f - average %.2f \n",trend,average);
+                    //printf("trend %.2f - average %.2f \n",trend,average);
 
                     if (costantTrend(trend)){
 

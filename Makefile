@@ -3,7 +3,7 @@ INPUTVECTOR_DIR = lib/inputvectors
 DEFAULT_VEC = $(INPUTVECTOR_DIR)/defaultvector
 UPDOWN_VEC = $(INPUTVECTOR_DIR)/updownvector
 HALFDEFAULT_VEC = $(INPUTVECTOR_DIR)/halfdefaultvector
-COSTANT_VEC = $(INPUTVECTOR_DIR)/costantvector
+CONSTANT_VEC = $(INPUTVECTOR_DIR)/constantvector
 HIGHLOW_VEC = $(INPUTVECTOR_DIR)/highlowvector
 LOWHIGH_VEC = $(INPUTVECTOR_DIR)/lowhighvector
 
@@ -19,8 +19,8 @@ main-updown: main.cpp updown-inputvector
 main-halfdefault: main.cpp halfdefault-inputvector
 	g++ -o $(BUILD_DIR)/main-halfdefault main.cpp $(BUILD_DIR)/$(HALFDEFAULT_VEC).o -lpthread -I. 
 
-main-costant:  main.cpp costant-inputvector
-	g++ -o $(BUILD_DIR)/main-costant main.cpp $(BUILD_DIR)/$(COSTANT_VEC).o -lpthread -I. 
+main-constant:  main.cpp constant-inputvector
+	g++ -o $(BUILD_DIR)/main-constant main.cpp $(BUILD_DIR)/$(CONSTANT_VEC).o -lpthread -I. 
 
 main-highlow: main.cpp highlow-inputvector
 	g++ -o $(BUILD_DIR)/main-highlow main.cpp $(BUILD_DIR)/$(HIGHLOW_VEC).o -lpthread -I. 
@@ -40,8 +40,8 @@ updown-inputvector: $(UPDOWN_VEC).cpp
 halfdefault-inputvector: $(HALFDEFAULT_VEC).cpp
 	g++ -c $(HALFDEFAULT_VEC).cpp -I. -o $(BUILD_DIR)/$(HALFDEFAULT_VEC).o
 
-costant-inputvector: $(COSTANT_VEC).cpp
-	g++ -c $(COSTANT_VEC).cpp -I. -o $(BUILD_DIR)/$(COSTANT_VEC).o
+constant-inputvector: $(CONSTANT_VEC).cpp
+	g++ -c $(CONSTANT_VEC).cpp -I. -o $(BUILD_DIR)/$(CONSTANT_VEC).o
 
 highlow-inputvector: $(HIGHLOW_VEC).cpp
 	g++ -c $(HIGHLOW_VEC).cpp -I. -o $(BUILD_DIR)/$(HIGHLOW_VEC).o
@@ -52,13 +52,13 @@ lowhigh-inputvector: $(LOWHIGH_VEC).cpp
 
 
 
-all: main-default main-updown main-halfdefault main-costant main-highlow main-lowhigh
+all: main-default main-updown main-halfdefault main-constant main-highlow main-lowhigh
 
 clean: clean-o 
 	rm $(BUILD_DIR)/main-default $(BUILD_DIR)/main-updown $(BUILD_DIR)/main-halfdefault	\
-		$(BUILD_DIR)/main-costant $(BUILD_DIR)/main-highlow $(BUILD_DIR)/main-lowhigh
+		$(BUILD_DIR)/main-constant $(BUILD_DIR)/main-highlow $(BUILD_DIR)/main-lowhigh
 
 clean-o:
 	rm $(BUILD_DIR)/$(DEFAULT_VEC).o $(BUILD_DIR)/$(UPDOWN_VEC).o $(BUILD_DIR)/$(HALFDEFAULT_VEC).o	\
-		  $(BUILD_DIR)/$(COSTANT_VEC).o $(BUILD_DIR)/$(HIGHLOW_VEC).o $(BUILD_DIR)/$(LOWHIGH_VEC).o
+		  $(BUILD_DIR)/$(CONSTANT_VEC).o $(BUILD_DIR)/$(HIGHLOW_VEC).o $(BUILD_DIR)/$(LOWHIGH_VEC).o
 
