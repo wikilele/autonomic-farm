@@ -2,9 +2,15 @@
 #define WORKERPOOL_HPP
 
 #include <src/workers/FarmWorker.hpp>
+
 #include <vector>
 #include <thread>
 using namespace std;
+
+#define ADDWORKER_WP 2
+#define REMOVEWORKER_WP 1
+#define TERMINATE_WP 0 
+
 
 class AbstractWorkerPool{
     protected:
@@ -13,6 +19,14 @@ class AbstractWorkerPool{
         int actual_workers; 
         unsigned concurentThreadsSupported = std::thread::hardware_concurrency();
 
+        Queue<int> command_q;
+        /**
+         * This thread fetches the ADD or REMOVE commands from the above queue
+         * to add or freeze threads. It is extremely important when a brand new thread is needed.
+         * This thread will take charge of the thread spawning overhead so that the
+         * Scheduler is free to collect results.
+         */
+        thread command_thread;
 
         void spawnANDstartWorker(){
             AbstractWorker* abworker = spawnWorker();
@@ -27,6 +41,7 @@ class AbstractWorkerPool{
                 spawnANDstartWorker();
             }
             actual_workers = nw;
+            command_thread = thread(&AbstractWorkerPool::execute_command,this);
         }
 
         void joinPool(){
@@ -35,8 +50,23 @@ class AbstractWorkerPool{
             }
         }
 
+        // cmd must be ADDWORKER_WP or REMOVEWORKER_WP or TERMINATE_WP
+        void pushCommand(int cmd){
+            command_q.push(cmd);
+        }
 
-        void addWorker(){          
+        void execute_command(){
+            bool end = false;
+            while(!end){
+                int cmd = command_q.pop();
+                if (cmd == ADDWORKER_WP) addWorker();
+                else if (cmd == REMOVEWORKER_WP) freezeWorker();
+                else end = true;
+            }
+        }
+
+        void addWorker(){    
+     
             if(actual_workers < farm_workers.size()){
                 // wake up a worker
                 // start counting from 0
@@ -46,7 +76,6 @@ class AbstractWorkerPool{
             } else if (this->getTotalWorkers() < concurentThreadsSupported){
                 spawnANDstartWorker();
                 actual_workers ++;
-
                 //cout << "ADDWORKER\n";
             }     
         }

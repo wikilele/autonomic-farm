@@ -12,8 +12,6 @@ using namespace std;
 
 #define EOS 0xffff
 
-template<typename TOUT>
-class Result;
 
 template <typename TIN, typename TOUT>
 class MasterWorkerScheduler;
@@ -115,8 +113,7 @@ class FarmWorker : public AbstractWorker{
                 this->task_condition.wait(lock, [=]{ return this->task != NULL; });
         }
 
-        void returnResult(TOUT* res){
-            Result<TOUT>* result = new Result<TOUT>(res);
+        void returnResult(TOUT* result){
 
             // enqueuing just the result beacuse then the worker will wait to de defrosted
             auto doIfFreezed = [this,result](void){
@@ -136,7 +133,7 @@ class FarmWorker : public AbstractWorker{
 
         void main_task(){
             bool eos = false;
-            // ready to start
+
             this->scheduler->enqueue(this,NULL);
             while(!eos){
                 waitForTask();

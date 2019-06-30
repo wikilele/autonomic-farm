@@ -10,26 +10,6 @@ using namespace std;
 
 #define EOS 0xffff
 
-template<typename TOUT>
-class Result{
-    protected:
-        TOUT* result;
-        /**
-         * This var stores the actual time when the result was computed,
-         * it will be used to estimate the overhead of the enqueuing to
-         * avoid counting it 
-         */
-        chrono::high_resolution_clock::time_point returned_time;
-    
-    public:
-        Result(TOUT* result){
-            this->result = result;
-            returned_time = chrono::high_resolution_clock::now();
-        }
-
-        TOUT* getResult(){return result;}
-        chrono::high_resolution_clock::time_point getReturnedTime(){return  returned_time;}
-};
 
 template <typename TIN, typename TOUT>
 class FarmWorker;
@@ -38,7 +18,7 @@ class FarmWorker;
 template <typename TIN, typename TOUT>
 class MasterWorkerScheduler{
     protected:
-        Queue<pair<FarmWorker<TIN,TOUT>*, Result<TOUT>*>> queue;
+        Queue<pair<FarmWorker<TIN,TOUT>*, TOUT*>> queue;
 
         IEmitter<TIN>* emitter;
         ICollector<TOUT>* collector;
@@ -66,8 +46,8 @@ class MasterWorkerScheduler{
             monitor = mon;
         }
 
-        void enqueue(FarmWorker<TIN,TOUT>* fw, Result<TOUT>* result){
-            queue.push(pair<FarmWorker<TIN,TOUT>*, Result<TOUT>*>(fw,result));
+        void enqueue(FarmWorker<TIN,TOUT>* fw, TOUT* result){
+            queue.push(pair<FarmWorker<TIN,TOUT>*,  TOUT*>(fw,result));
         }
 
         void schedule(){
@@ -76,28 +56,24 @@ class MasterWorkerScheduler{
             bool more_items = true;
             int total_task_number = 0;
             int task_collected = 0;
-
+            int old_task_colleted = 0;
             monitor->init();   
                      
-            while(more_items) {               
-                chrono::high_resolution_clock::time_point max_returnedtime = std::chrono::high_resolution_clock::time_point::min();
+            while(more_items) {     
+                old_task_colleted = task_collected;          
 
                 // popping all the waiting workers allows to lock the queue just one time
                 // and process more element, istead of lock - process - lock - process ....
-                vector<pair<FarmWorker<TIN,TOUT>*, Result<TOUT>*>> poppedpairs_vector = queue.popAll();
+                vector<pair<FarmWorker<TIN,TOUT>*,  TOUT*>> poppedpairs_vector = queue.popAll();
 
                 for (auto iter = poppedpairs_vector.begin(); iter != poppedpairs_vector.end(); iter ++){
                     // unpacking the pair
                     FarmWorker<TIN,TOUT>* readyworker = (*iter).first;
-                    Result<TOUT>* result = (*iter).second;
+                    TOUT* result = (*iter).second;
 
                     if (result != NULL){
                         task_collected ++;
-                        collector->pushResult(result->getResult());
-                        
-                        if(max_returnedtime < result->getReturnedTime()){
-                            max_returnedtime = result->getReturnedTime();
-                        }
+                        collector->pushResult(result);
                     }
                    
                     if (readyworker != NULL){
@@ -113,21 +89,21 @@ class MasterWorkerScheduler{
                 }
 
                 //Copute service time and take a decision
-                if (task_collected > 0)
-                    monitor->notify(task_collected, max_returnedtime); 
+                if (task_collected > old_task_colleted)
+                    monitor->notify(task_collected); 
             }
       
             // waiting the last workers
             while(task_collected < total_task_number){
-                pair<FarmWorker<TIN,TOUT>*, Result<TOUT>*> popped_pair = queue.pop();
+                pair<FarmWorker<TIN,TOUT>*,  TOUT*> popped_pair = queue.pop();
                 
                 // unpacking the pair
                 FarmWorker<TIN,TOUT>* readyworker = popped_pair.first;
-                Result<TOUT>* result = popped_pair.second;
+                TOUT* result = popped_pair.second;
                 
                 if (result != NULL){
                     task_collected ++;    
-                    collector->pushResult(result->getResult());
+                    collector->pushResult(result);
                 }
                 
                 if (readyworker != NULL){
@@ -140,7 +116,7 @@ class MasterWorkerScheduler{
 
         void sendLastEOS(int remaining_workers){
             while (remaining_workers > 0){
-                pair<FarmWorker<TIN,TOUT>*, Result<TOUT>*> popped_pair = queue.pop();
+                pair<FarmWorker<TIN,TOUT>*,  TOUT*> popped_pair = queue.pop();
 
                 FarmWorker<TIN,TOUT>* readyworker = popped_pair.first;
                 if (readyworker != NULL){

@@ -33,7 +33,7 @@ class AutonomicFarm{
             int remaining_workers = workerpool->unfreezeRemainingWorkers();
             scheduler->sendLastEOS(remaining_workers);
             workerpool->joinPool();
-
+            workerpool->pushCommand(TERMINATE_WP);
             return collector->returnResults();
         }
 
