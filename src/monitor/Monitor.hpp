@@ -34,6 +34,7 @@ class Monitor{
         void init(){
             start = chrono::high_resolution_clock::now();
             beginning = start;
+            // output to be redireted to a .csv file
             printf("time, throughput, nw\n");
         }
 
@@ -65,7 +66,8 @@ class Monitor{
                                                             throughput,
                                                             workerpool->getActualWorkers(),
                                                             workerpool->getTotalWorkers());*/
- 
+
+            // output to be redireted to a .csv file
             printf("%.2f, %.2f, %d\n", now_milliseconds, throughput, workerpool->getActualWorkers());
             
             if (command & REFRESH_THROUGHPUT){

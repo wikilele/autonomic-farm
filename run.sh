@@ -5,27 +5,69 @@
 # Then the result directory should be moved on local machine to plot the charts
 #
 
+makeDirectory(){
+	if [ ! -d $1 ] 
+	then
+    	mkdir $1
+    fi
+}
 
-mkdir results
+# $1 = nw , $2 = throughput
+runDefault(){ 
+	makeDirectory results/default/$1_$2
+	for (( i=1; i<=3; i++ ))
+	do  
+		echo "...main-default $1 $2 run $i"
+   		build/main-default $1 $2 > results/default/$1_$2/result$i.csv
+	done
+}
+
+makeDirectory results
+
 
 # running al the experiments and getting the csv files
 
-echo "running main-default"
-build/main-default 4 1 > results/result-default41.csv
+echo "running main-default ..."
+makeDirectory results/default
 
-echo "running main-updown"
-build/main-updown 4 1 > results/result-updown41.csv
+runDefault 4 1
 
-echo "running main-constant"
-build/main-constant 4 1 > results/result-constant41.csv
+runDefault 1 1
 
-echo "running main-halfdefault"
-build/main-halfdefault 4 2 > results/result-halfdefault42.csv
+runDefault 8 1
 
-echo "running main-highlow"
-build/main-highlow 4 1 > results/result-highlow41.csv
+runDefault 4 2
 
-echo "running main-lowhigh"
-build/main-lowhigh 4 1 > results/result-lowhigh41.csv
+runDefault 1 8
+
+runDefault 8 16
+
+runDefault 4 4
 
 
+# running the others
+
+# $1 = nw , $2 = throughput, $3 = name
+runOthers(){ 
+	makeDirectory results/$3
+	for (( i=1; i<=3; i++ ))
+	do  
+		echo "...main-$3 $1 $2 run $i"
+   		build/main-$3 $1 $2 > results/$3/result$i.csv
+	done
+}
+
+echo "running main-updown..."
+runOthers 4 1 updown
+
+echo "running main-constant..."
+runOthers 4 1 constant
+
+echo "running main-halfdefault..."
+runOthers 4 2 halfdefault
+
+echo "running main-highlow..."
+runOthers 4 1 highlow
+
+echo "running main-lowhigh..."
+runOthers 4 1 lowhigh
