@@ -12,6 +12,7 @@ class Monitor{
         // task/milliseconds
         float expected_throughput;
         float previous_throughput;
+        float overhead ;
         IMonitorStrategy* mstrategy;
         AbstractWorkerPool* workerpool;
         
@@ -25,6 +26,7 @@ class Monitor{
             expected_throughput = et;
             previous_throughput = et;
             old_taskcollected = 0;
+            overhead = 0;
         }
 
         void initWorkerPool(AbstractWorkerPool* wp){
@@ -37,13 +39,16 @@ class Monitor{
             printf("time, throughput, nw, expected_throughput\n");
         }
 
-        void notify(int task_collected){
+        void notify(int task_collected, chrono::high_resolution_clock::time_point actual_now){
             float throughput;
 
             auto now = chrono::high_resolution_clock::now();
             auto elapsed = now - start;
+
+            overhead +=  (long int)chrono::duration_cast<std::chrono::microseconds>(now - actual_now).count()/1000.0;
             
             float elapsed_milliseconds = (long int)chrono::duration_cast<std::chrono::microseconds>(elapsed).count()/1000.0;
+            elapsed_milliseconds = elapsed_milliseconds - overhead;
             
             if (elapsed_milliseconds >= 0.500){
                 throughput = (task_collected - old_taskcollected )/ elapsed_milliseconds;
@@ -67,10 +72,11 @@ class Monitor{
                                                             workerpool->getTotalWorkers());*/
 
             printf("%.2f, %.2f, %d, %.2f \n", now_milliseconds, throughput, workerpool->getActualWorkers(), expected_throughput);
-                
+            
             if (command & REFRESH_THROUGHPUT){
                 start = chrono::high_resolution_clock::now(); 
                 old_taskcollected = task_collected;
+                overhead = 0;
             }
             
 

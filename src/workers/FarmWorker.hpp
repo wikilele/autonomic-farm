@@ -7,9 +7,13 @@
 #include <mutex>
 #include <condition_variable>
 #include <functional>
+#include <chrono>
 using namespace std;
 
 #define EOS 0xffff
+
+template<typename TOUT>
+class Result;
 
 template <typename TIN, typename TOUT>
 class MasterWorkerScheduler;
@@ -111,7 +115,9 @@ class FarmWorker : public AbstractWorker{
                 this->task_condition.wait(lock, [=]{ return this->task != NULL; });
         }
 
-        void returnResult(TOUT* result){
+        void returnResult(TOUT* res){
+            Result<TOUT>* result = new Result<TOUT>(res);
+
             // enqueuing just the result beacuse then the worker will wait to de defrosted
             auto doIfFreezed = [this,result](void){
                 this->scheduler->enqueue(NULL,result);
