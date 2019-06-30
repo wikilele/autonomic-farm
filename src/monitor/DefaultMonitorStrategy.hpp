@@ -4,15 +4,6 @@
 using namespace std;
 
 
-/*
-// TODO consider to define a threshold
-// must be a float
-#define TREND_THRESHOLD 0.10
-#define AVG_THRESHOLD 0.10
-// TODO maybe it's better if it's a faraction of the input size
-// TODO the framework should care of set this automatically depending on some other parameters
-#define WINDOW_SIZE 50*/
-
 class DefaultMonitorStrategy: public IMonitorStrategy{
     protected:
         // this values must be untouched
@@ -101,7 +92,9 @@ class DefaultMonitorStrategy: public IMonitorStrategy{
 
     public:
         DefaultMonitorStrategy(float exp_t, int inputsize): IMonitorStrategy(exp_t){
-            this->WINDOW_SIZE = inputsize/100; // 30 - 50 getting better results
+            // defining a window back in time
+            this->WINDOW_SIZE = inputsize/100; 
+            // defining some thresholds
             this->AVG_THRESHOLD = exp_t* 1/10;
             this->TREND_THRESHOLD = exp_t* 2/10;
             past_throughputs = new vector<float>(WINDOW_SIZE);

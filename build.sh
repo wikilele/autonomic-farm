@@ -1,8 +1,16 @@
 #!/bin/bash
 
-mkdir build
-mkdir build/lib
-mkdir build/lib/inputvectors
+
+makeDirectory(){
+	if [ ! -d $1 ] 
+	then
+    	mkdir $1
+    fi
+}
+
+makeDirectory build
+makeDirectory build/lib
+makeDirectory build/lib/inputvectors
 
 make all
 
