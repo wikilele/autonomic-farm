@@ -10,6 +10,7 @@ using namespace std;
 
 #define EOS 0xffff
 
+
 template <typename TIN, typename TOUT>
 class FarmWorker;
 
@@ -46,7 +47,7 @@ class MasterWorkerScheduler{
         }
 
         void enqueue(FarmWorker<TIN,TOUT>* fw, TOUT* result){
-            queue.push(pair<FarmWorker<TIN,TOUT>*, TOUT*>(fw,result));
+            queue.push(pair<FarmWorker<TIN,TOUT>*,  TOUT*>(fw,result));
         }
 
         void schedule(){
@@ -55,13 +56,15 @@ class MasterWorkerScheduler{
             bool more_items = true;
             int total_task_number = 0;
             int task_collected = 0;
-
+            int old_task_colleted = 0;
             monitor->init();   
                      
-            while(more_items) {                
+            while(more_items) {     
+                old_task_colleted = task_collected;          
+
                 // popping all the waiting workers allows to lock the queue just one time
                 // and process more element, istead of lock - process - lock - process ....
-                vector<pair<FarmWorker<TIN,TOUT>*, TOUT*>> poppedpairs_vector = queue.popAll();
+                vector<pair<FarmWorker<TIN,TOUT>*,  TOUT*>> poppedpairs_vector = queue.popAll();
 
                 for (auto iter = poppedpairs_vector.begin(); iter != poppedpairs_vector.end(); iter ++){
                     // unpacking the pair
@@ -86,13 +89,13 @@ class MasterWorkerScheduler{
                 }
 
                 //Copute service time and take a decision
-                if (task_collected > 0)
+                if (task_collected > old_task_colleted)
                     monitor->notify(task_collected); 
             }
       
             // waiting the last workers
             while(task_collected < total_task_number){
-                pair<FarmWorker<TIN,TOUT>*, TOUT*> popped_pair = queue.pop();
+                pair<FarmWorker<TIN,TOUT>*,  TOUT*> popped_pair = queue.pop();
                 
                 // unpacking the pair
                 FarmWorker<TIN,TOUT>* readyworker = popped_pair.first;
@@ -113,7 +116,7 @@ class MasterWorkerScheduler{
 
         void sendLastEOS(int remaining_workers){
             while (remaining_workers > 0){
-                pair<FarmWorker<TIN,TOUT>*, TOUT*> popped_pair = queue.pop();
+                pair<FarmWorker<TIN,TOUT>*,  TOUT*> popped_pair = queue.pop();
 
                 FarmWorker<TIN,TOUT>* readyworker = popped_pair.first;
                 if (readyworker != NULL){

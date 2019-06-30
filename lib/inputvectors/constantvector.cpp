@@ -8,4 +8,6 @@ vector<int*>* getInputVector(){
     for(int i = 0; i < SECTION_SIZE; i ++ ){
         returnvect->push_back(new int(4));
     } 
+
+    return returnvect;
 }
