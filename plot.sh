@@ -16,17 +16,16 @@ OUTPUT_DIR=results/charts
 
 # plotting
 
-RESULT_DEFAULT=result-default41
 echo "plotting main-default"
 # --ycol 2 refers to the thoughput
-graph results/$RESULT_DEFAULT.csv  --marker '' --xcol 1	\
+graph results/result-default41.csv  --marker '' --xcol 1	\
 	--ycol 2 --color=#000000 --title 'main-default 4 1' --no-grid --xscale 200	\
-		-o $OUTPUT_DIR/$RESULT_DEFAULTt.png
+		-o $OUTPUT_DIR/result-default41t.png
 
 # --ycol 3 refers to the number of workers
 graph results/result-default41.csv  --marker '' --xcol 1	\
 	--ycol 3 --color=#000000 --title 'main-default 4 1 ' --no-grid --xscale 200	\
-		-o $OUTPUT_DIR/$RESULT_DEFAULTnw.png
+		-o $OUTPUT_DIR/result-default41nw.png
 
 
 echo "plotting main-updown"
