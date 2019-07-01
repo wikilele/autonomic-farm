@@ -2,7 +2,7 @@
 
 
 vector<int*>* getInputVector(){
-    const int SECTION_SIZE = 1000;
+    const int SECTION_SIZE = 2000;
     vector<int*>* returnvect = new vector<int*>();
     
     for(int i = 0; i < SECTION_SIZE; i ++ ){
