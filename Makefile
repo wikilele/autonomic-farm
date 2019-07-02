@@ -52,9 +52,9 @@ lowhigh-inputvector: $(LOWHIGH_VEC).cpp
 
 
 
-all: main-default main-updown main-halfdefault main-constant main-highlow main-lowhigh
+all: main-default main-updown main-halfdefault main-constant main-highlow main-lowhigh 
 
-clean: clean-o 
+clean: clean-o clean-ff
 	rm $(BUILD_DIR)/main-default $(BUILD_DIR)/main-updown $(BUILD_DIR)/main-halfdefault	\
 		$(BUILD_DIR)/main-constant $(BUILD_DIR)/main-highlow $(BUILD_DIR)/main-lowhigh
 
@@ -62,6 +62,18 @@ clean-o:
 	rm $(BUILD_DIR)/$(DEFAULT_VEC).o $(BUILD_DIR)/$(UPDOWN_VEC).o $(BUILD_DIR)/$(HALFDEFAULT_VEC).o	\
 		  $(BUILD_DIR)/$(CONSTANT_VEC).o $(BUILD_DIR)/$(HIGHLOW_VEC).o $(BUILD_DIR)/$(LOWHIGH_VEC).o
 
-# fast flow
-ffmain: ffmain.cpp default-inputvector
-	g++ -o ffmain-default ffmain.cpp $(BUILD_DIR)/$(DEFAULT_VEC).o -lpthread -I. -I./lib/fastflow 
+
+### fast flow
+FFFLAGS = -I./lib/fastflow -DUSE_FASTFLOW
+
+
+ffmain-default: ffmain.cpp default-inputvector
+	g++ -o $(BUILD_DIR)/ffmain-default ffmain.cpp $(BUILD_DIR)/$(DEFAULT_VEC).o -lpthread -I. $(FFFLAGS)
+
+ffmain-constant:  ffmain.cpp constant-inputvector
+	g++ -o $(BUILD_DIR)/ffmain-constant main.cpp $(BUILD_DIR)/$(CONSTANT_VEC).o -lpthread -I. $(FFFLAGS)
+
+all-ff: ffmain-default ffmain-constant
+
+clean-ff:
+	rm $(BUILD_DIR)/ffmain-default $(BUILD_DIR)/ffmain-constant

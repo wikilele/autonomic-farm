@@ -12,7 +12,9 @@ makeDirectory build
 makeDirectory build/lib
 makeDirectory build/lib/inputvectors
 
+echo "building C++ native threads implementation..."
 make all
+
 
 
 
