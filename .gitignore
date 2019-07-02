@@ -22,3 +22,6 @@ results/*
 *.o
 
 result.txt
+
+fastflow
+lib/fastflow/*

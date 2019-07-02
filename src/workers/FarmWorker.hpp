@@ -10,7 +10,7 @@
 #include <chrono>
 using namespace std;
 
-#define EOS 0xffff
+#define END_OF_STREAM 0xffff
 
 
 template <typename TIN, typename TOUT>
@@ -139,7 +139,7 @@ class FarmWorker : public AbstractWorker{
                 waitForTask();
                 // now task is guaranteed to be non null
 
-                if(task == (TIN*)EOS){
+                if(task == (TIN*)END_OF_STREAM){
                     eos = true;
                 } else {
                     // applying business logic code given by the user

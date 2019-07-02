@@ -2,6 +2,7 @@
 #define WORKERPOOL_HPP
 
 #include <src/workers/FarmWorker.hpp>
+#include <src/workers/IAddRemoveWorker.hpp>
 
 #include <vector>
 #include <thread>
@@ -11,8 +12,7 @@ using namespace std;
 #define REMOVEWORKER_WP 1
 #define TERMINATE_WP 0 
 
-
-class AbstractWorkerPool{
+class AbstractWorkerPool: public IAddRemoveWorker{
     protected:
         vector<AbstractWorker*> farm_workers;
         // number of non freezed workers, always <= farm_workers size
@@ -34,22 +34,6 @@ class AbstractWorkerPool{
             abworker->start(); 
         }
 
-    public:
-        // nw - parallelism degree
-        void initPool(int nw){
-            for(int i= 0; i < nw; i ++){
-                spawnANDstartWorker();
-            }
-            actual_workers = nw;
-            command_thread = thread(&AbstractWorkerPool::execute_command,this);
-        }
-
-        void joinPool(){
-            for(int i = 0; i < farm_workers.size(); i++){
-                (farm_workers[i])->join();
-            }
-        }
-
         // cmd must be ADDWORKER_WP or REMOVEWORKER_WP or TERMINATE_WP
         void pushCommand(int cmd){
             command_q.push(cmd);
@@ -59,13 +43,13 @@ class AbstractWorkerPool{
             bool end = false;
             while(!end){
                 int cmd = command_q.pop();
-                if (cmd == ADDWORKER_WP) addWorker();
-                else if (cmd == REMOVEWORKER_WP) freezeWorker();
+                if (cmd == ADDWORKER_WP) __addWorker();
+                else if (cmd == REMOVEWORKER_WP) __freezeWorker();
                 else end = true;
             }
         }
 
-        void addWorker(){    
+        void __addWorker(){    
      
             if(actual_workers < farm_workers.size()){
                 // wake up a worker
@@ -80,11 +64,27 @@ class AbstractWorkerPool{
             }     
         }
 
-        void freezeWorker(){
+        void __freezeWorker(){
             if (actual_workers > 1){
                 //cout << "REMOVEWORKER\n";
                 farm_workers.at(actual_workers - 1)->freeze();
                 actual_workers --;
+            }
+        }
+
+    public:
+        // nw - parallelism degree
+        void initPool(int nw){
+            for(int i= 0; i < nw; i ++){
+                spawnANDstartWorker();
+            }
+            actual_workers = nw;
+            command_thread = thread(&AbstractWorkerPool::execute_command,this);
+        }
+
+        void joinPool(){
+            for(int i = 0; i < farm_workers.size(); i++){
+                (farm_workers[i])->join();
             }
         }
 
@@ -105,9 +105,22 @@ class AbstractWorkerPool{
             return unfreezed_workers;
         }
 
+        void terminate(){
+            this->pushCommand(TERMINATE_WP);
+        }
+
+        /** IAddRemoveWorker methods */
+        void addWorker(){
+            this->pushCommand(ADDWORKER_WP);
+        }
+
+        void removeWorker(){
+            this->pushCommand(REMOVEWORKER_WP);
+        }
+
         int getActualWorkers(){ return actual_workers; }
         int getTotalWorkers(){ return farm_workers.size();}
-
+        /*****************************/
         virtual AbstractWorker* spawnWorker() = 0;
 };
 

@@ -1,3 +1,7 @@
+#ifndef COLLECTOR_HPP
+#define COLLECTOR_HPP
+
+
 #include <vector>
 using namespace std;
 
@@ -27,3 +31,5 @@ class DefaultCollector: public ICollector<TOUT>{
            return new vector<TOUT*>(results_vector); 
         }
 };
+
+#endif /* COLLECTOR_HPP */

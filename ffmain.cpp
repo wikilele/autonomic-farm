@@ -1,9 +1,11 @@
+
 #include <iostream>
-#include <src/AutonomicFarmBuilder.hpp>
+#include <vector>
 #include <lib/inputvectors/inputvectors.hpp>
+#include <src/AutonomicFarmBuilder.hpp>
 
 
-int main(int argc, char * argv[]){
+int main(int argc, char* argv[]) {
 
     // check input parameters
     if(argc < 3) {
@@ -15,15 +17,16 @@ int main(int argc, char * argv[]){
     float throughput = atof(argv[2]);
 
     vector<int*>* vect = getInputVector();
-   
+    
     IAutonomicFarm<int,int>* afarm =  (new AutonomicFarmBuilder<int,int>())
                                             ->useDefaultEmitter(vect)
                                             ->useDefaultCollector()
                                             ->setNumberOfWorkers(nw)
                                             ->setWorkerFunction(activewait)
                                             ->useDefaultMonitorStrategy(throughput)
+                                            ->useFastFlow()
                                             ->build();
 
     vector<int*>* results = afarm->runAndGetResults();
-    
+    return 0;
 }
