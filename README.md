@@ -19,7 +19,8 @@ Building the C++ native thread implementation
 
     # to plot graph-cli is needed
     head plot.sh
-     ./scripts/plot.sh
+    ./scripts/plot.sh
+    
 ```
 
 Building the fast-flow implementation
@@ -36,6 +37,7 @@ Building the fast-flow implementation
     ./scripts/ffbuild.sh
     ./scripts/ffrun.sh
 
+    head ffplot.sh
+    ./scripts/ffplot.sh
 
-    
 ```

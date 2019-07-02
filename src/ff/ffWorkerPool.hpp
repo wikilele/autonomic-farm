@@ -26,7 +26,7 @@ class ffWorkerPool: public IAddRemoveWorker {
         /** IAddRemoveWorker methods */
         void addWorker(){
             if (actual_nw < total_nw){
-                cout << "ADDWORKER\n";
+                //cout << "ADDWORKER\n";
                 actual_nw ++;
                 // worker id starts from 0
                 scheduler->getlb()->thaw(actual_nw - 1 , true);
@@ -35,7 +35,7 @@ class ffWorkerPool: public IAddRemoveWorker {
 
         void removeWorker(){
             if(actual_nw > 1){ 
-                cout << "REMOVEWORKER\n";
+                //cout << "REMOVEWORKER\n";
                 actual_nw --;
                 scheduler->ff_send_out_to(scheduler->GO_OUT, actual_nw);
             }

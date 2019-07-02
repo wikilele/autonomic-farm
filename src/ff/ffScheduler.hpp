@@ -31,7 +31,6 @@ class ffScheduler: public ff_monode_t<TOUT,TIN> { // the master receives the res
             nw = this->get_num_outchannels();
             workerpool = new ffWorkerPool<TIN,TOUT>(this);          
             monitor->initWorkerPool(workerpool);
-            monitor->init();
             
             return 0;
         }
@@ -62,6 +61,7 @@ class ffScheduler: public ff_monode_t<TOUT,TIN> { // the master receives the res
                 return this->GO_ON;
             } else{
                 // first scheduling
+                monitor->init();
                 for (int i = 0; i < nw; i++){
                     // ASSUME there are at leat nw tasks in the vector
                     TIN* newtask = emitter->getNextItem(); 
