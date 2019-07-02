@@ -1,3 +1,7 @@
+#ifndef DEFAULTMONITORSTRATEGY_HPP
+#define DEFAULTMONITORSTRATEGY_HPP
+
+
 #include <src/monitor/MonitorStrategy.hpp>
 #include<vector>
 #include<iostream>
@@ -146,3 +150,5 @@ class DefaultMonitorStrategy: public IMonitorStrategy{
         }
 };
 
+
+#endif /* DEFAULTMONITORSTRATEGY_HPP */

@@ -16,7 +16,7 @@ int main(int argc, char * argv[]){
 
     vector<int*>* vect = getInputVector();
    
-    AutonomicFarm<int,int>* afarm =  (new AutonomicFarmBuilder<int,int>())
+    IAutonomicFarm<int,int>* afarm =  (new AutonomicFarmBuilder<int,int>())
                                             ->useDefaultEmitter(vect)
                                             ->useDefaultCollector()
                                             ->setNumberOfWorkers(nw)
@@ -24,6 +24,6 @@ int main(int argc, char * argv[]){
                                             ->useDefaultMonitorStrategy(throughput)
                                             ->build();
 
-    vector<int*>* results = afarm->runANDgetResults();
+    vector<int*>* results = afarm->runAndGetResults();
     
 }

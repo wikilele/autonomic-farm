@@ -2,7 +2,7 @@
 #include <src/masterthread/Emitter.hpp>
 #include <src/masterthread/Collector.hpp>
 #include <src/ff/ffWorkerPool.hpp>
-#include <src/ff/ffMonitor.hpp>
+#include <src/monitor/Monitor.hpp>
 using namespace ff;
 
 
@@ -12,54 +12,60 @@ class ffScheduler: public ff_monode_t<TOUT,TIN> { // the master receives the res
         unsigned int nw;
         IEmitter<TIN>* emitter;
         ICollector<TOUT>* collector;
-        ffMonitor* monitor;
+        Monitor* monitor;
         ffWorkerPool<TIN,TOUT>* workerpool;
         int task_collected;
+        int task_emitted;
        
     public:
-        ffScheduler(IEmitter<TIN>* emitter,  ICollector<TOUT>* collector, ffMonitor* monitor){
+        ffScheduler(IEmitter<TIN>* emitter,  ICollector<TOUT>* collector, Monitor* monitor){
             this->emitter = emitter;
             this->collector = collector;
             this->monitor = monitor;
             task_collected = 0;
+            task_emitted = 0;
         }
 
         int svc_init() {
-            nw = this->get_num_outchannels();  // at the beginning, this is the number of workers
-            workerpool = new ffWorkerPool<TIN,TOUT>(nw);
+              // at the beginning, this is the number of workers
+            nw = this->get_num_outchannels();
+            workerpool = new ffWorkerPool<TIN,TOUT>(this);          
+            monitor->initWorkerPool(workerpool);
+            monitor->init();
+            
             return 0;
         }
 
         TIN* svc(TOUT* t) {       
             int wid = this->get_channel_id();
-            cout << "SCHED SVC\n";
             
-            // the id of the Monitor channel is greater than the maximum id of the workers
-            if ((size_t)wid == MONITORID) {  
-                cout << "MONITOR";
-                // the master just forwards the command to the WorkerPool
-                Command_t *cmd = reinterpret_cast<Command_t*>(t);
-                workerpool->addORfreezeWorker(cmd, this);
-                return this->GO_ON;
-
-            } else if ((size_t)wid < this->get_num_outchannels()) { // ack coming from the workers
-                //printf("Emitter got %ld back from %d data.size=%ld, onthefly=%d\n", (long)t, wid, data.size(), onthefly);
-                cout << "GETTING TASK BACK\n";
+            // result and ack coming from a worker
+            if ((size_t)wid < this->get_num_outchannels()) { 
                 TIN* newtask = emitter->getNextItem();
                 task_collected ++;
                 collector->pushResult(t);
-                if (newtask != NULL)
+                //printf("task emitted %d - task collected %d\n",task_emitted,task_collected);
+                if (newtask != NULL){                 
+                    task_emitted ++;
                     this->ff_send_out_to(newtask, wid);
-                else this->ff_send_out_to(this->EOS,wid);
-
-                // TODO add the Monitor notify
-                monitor->notify(task_collected);
+                    monitor->notify(task_collected);
+                } else {
+                    // managing the termination
+                    workerpool->unfreezeRemainingWorkers();
+       
+                    if (task_collected >= task_emitted){                    
+                        this->broadcast_task(this->EOS_NOFREEZE);
+                        return this->EOS;
+                    }
+                }              
                 
                 return this->GO_ON;
             } else{
                 // first scheduling
                 for (int i = 0; i < nw; i++){
-                    TIN* newtask = emitter->getNextItem();
+                    // ASSUME there are at leat nw tasks in the vector
+                    TIN* newtask = emitter->getNextItem(); 
+                    task_emitted ++;
                     this->ff_send_out_to(newtask, i);
                 }
                 return this->GO_ON;

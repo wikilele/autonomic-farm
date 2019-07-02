@@ -2,9 +2,10 @@
 
 #include <src/masterthread/Scheduler.hpp>
 #include <src/workers/WorkerPool.hpp>
+#include <src/IAutonomicFarm.hpp>
 
 template <typename TIN, typename TOUT>
-class AutonomicFarm{
+class AutonomicFarm: public IAutonomicFarm<TIN,TOUT>{
     protected:
         IEmitter<TIN>* emitter;
         ICollector<TOUT>* collector;
@@ -27,13 +28,13 @@ class AutonomicFarm{
             monitor = mon;
         }
 
-        vector<TOUT*>* runANDgetResults(){
+        vector<TOUT*>* runAndGetResults(){
             scheduler->schedule();
             // relasing the threads correctly          
             int remaining_workers = workerpool->unfreezeRemainingWorkers();
             scheduler->sendLastEOS(remaining_workers);
             workerpool->joinPool();
-            workerpool->pushCommand(TERMINATE_WP);
+            workerpool->terminate();
             return collector->returnResults();
         }
 

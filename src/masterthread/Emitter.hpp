@@ -1,3 +1,7 @@
+
+#ifndef EMITTER_HPP
+#define EMITTER_HPP
+
 #include <vector>
 using namespace std;
 
@@ -40,3 +44,5 @@ class DefaultEmitter: public IEmitter<TIN> {
             return item;
         }
 };
+
+#endif /* EMITTER_HPP */

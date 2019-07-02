@@ -63,5 +63,5 @@ clean-o:
 		  $(BUILD_DIR)/$(CONSTANT_VEC).o $(BUILD_DIR)/$(HIGHLOW_VEC).o $(BUILD_DIR)/$(LOWHIGH_VEC).o
 
 # fast flow
-ffmain: src/ff/ffmain.cpp default-inputvector
-	g++ -o ffmain-default src/ff/ffmain.cpp $(BUILD_DIR)/$(DEFAULT_VEC).o -lpthread -I. -I./lib/fastflow
+ffmain: ffmain.cpp default-inputvector
+	g++ -o ffmain-default ffmain.cpp $(BUILD_DIR)/$(DEFAULT_VEC).o -lpthread -I. -I./lib/fastflow 

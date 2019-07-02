@@ -8,7 +8,7 @@
 #include <thread>
 using namespace std;
 
-#define EOS 0xffff
+#define END_OF_STREAM 0xffff
 
 
 template <typename TIN, typename TOUT>
@@ -83,7 +83,7 @@ class MasterWorkerScheduler{
                             readyworker->giveTaskANDnotify(task);
                         } else {
                             more_items = false;
-                            readyworker->giveTaskANDnotify((TIN*) EOS);
+                            readyworker->giveTaskANDnotify((TIN*) END_OF_STREAM);
                         }
                     }
                 }
@@ -107,7 +107,7 @@ class MasterWorkerScheduler{
                 }
                 
                 if (readyworker != NULL){
-                    readyworker->giveTaskANDnotify((TIN*) EOS);
+                    readyworker->giveTaskANDnotify((TIN*) END_OF_STREAM);
                 }
             }
 
@@ -120,7 +120,7 @@ class MasterWorkerScheduler{
 
                 FarmWorker<TIN,TOUT>* readyworker = popped_pair.first;
                 if (readyworker != NULL){
-                    readyworker->giveTaskANDnotify((TIN*) EOS);
+                    readyworker->giveTaskANDnotify((TIN*) END_OF_STREAM);
                     remaining_workers --;
                 }
             }            

@@ -1,79 +1,53 @@
 #include <lib/fastflow/ff/ff.hpp>
+#include <src/workers/IAddRemoveWorker.hpp>
 using namespace ff;
 
 template <typename TIN, typename TOUT>
 class ffScheduler;
 
-#ifndef COMMAND_T
-#define COMMAND_T
-typedef enum { ADD, REMOVE } reconf_op_t;
-struct Command_t {
-    Command_t(int id, reconf_op_t op): id(id), op(op) {}
-    int         id;
-    reconf_op_t op;
-};
-#endif /* COMMAND_T */
 /**
  * Since I use a reference to the Master<TIN,TOUT> inside I need to declare this class
  * with the template :(
  */
 template <typename TIN, typename TOUT>
-class ffWorkerPool{
+class ffWorkerPool: public IAddRemoveWorker {
     protected:
-        unsigned int  nw;
-        unsigned int readyworkers_num;
-        unsigned int frozenworkers_num;
+        int  total_nw;
+        int actual_nw;
 
-        std::vector<bool>  isready_worker;         // which workers are ready
-        std::vector<bool>  isfreezed_worker;      // which workers are sleeping
-        std::vector<long*> data;          // local storage
+         ffScheduler<TIN,TOUT>* scheduler;
 
     public: 
-        ffWorkerPool(unsigned int nw){
-            this->nw = nw;  
-            isready_worker.resize(nw); 
-            isfreezed_worker.resize(nw);
-            for(size_t i = 0; i < isready_worker.size(); i++) {
-                isready_worker[i]    = true;
-                isfreezed_worker[i] = false;
-            }
-            readyworkers_num = isready_worker.size();
-            frozenworkers_num = 0;
+        ffWorkerPool( ffScheduler<TIN,TOUT>* scheduler){
+            this->scheduler = scheduler;
+            total_nw = actual_nw = scheduler->get_num_outchannels();
         }
-/*
-        int selectReadyWorker() {
-            for (unsigned i=last+1;i<ready.size();++i) {
-                if (ready[i]) {
-                    last = i;
-                    return i;
-                }
+        
+        /** IAddRemoveWorker methods */
+        void addWorker(){
+            if (actual_nw < total_nw){
+                cout << "ADDWORKER\n";
+                actual_nw ++;
+                // worker id starts from 0
+                scheduler->getlb()->thaw(actual_nw - 1 , true);
             }
-            for (unsigned i=0;i<=last;++i) {
-                if (ready[i]) {
-                    last = i;
-                    return i;
-                }
-            }
-            return -1;
-        }*/
-
-        void addORfreezeWorker(Command_t* cmd,  ffScheduler<TIN,TOUT>* master){
-            // unpacking the command
-            int workerid = cmd->id;
-            reconf_op_t operation = cmd-> op;
-            if (operation == ADD){
-                master->getlb()->thaw(workerid, true);
-                //assert(isfreezed_worker[workerid]);
-                isfreezed_worker[workerid] = false;
-                frozenworkers_num--;
-            } else if (operation == REMOVE){
-                master->ff_send_out_to(master->GO_OUT, workerid);
-                //assert(!isfreezed_worker[workerid]);
-                isfreezed_worker[workerid] = true;
-                frozenworkers_num++;
-            }
-
-            delete cmd;        
         }
 
+        void removeWorker(){
+            if(actual_nw > 1){ 
+                cout << "REMOVEWORKER\n";
+                actual_nw --;
+                scheduler->ff_send_out_to(scheduler->GO_OUT, actual_nw);
+            }
+        }
+
+        int getActualWorkers(){ return actual_nw; }
+        int getTotalWorkers(){ return total_nw;}
+        /*****************************/
+
+        void unfreezeRemainingWorkers(){
+            for(actual_nw; actual_nw <= total_nw; actual_nw++){
+                scheduler->getlb()->thaw(actual_nw -1 , true);
+            }
+        }
 };

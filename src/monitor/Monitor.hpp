@@ -1,7 +1,7 @@
 #ifndef MONITOR_HPP
 #define MONITOR_HPP
 #include <src/monitor/MonitorStrategy.hpp>
-#include <src/workers/WorkerPool.hpp>
+#include <src/workers/IAddRemoveWorker.hpp>
 
 #include <iostream>
 #include <chrono>
@@ -13,7 +13,7 @@ class Monitor{
         float expected_throughput;
         float previous_throughput;
         IMonitorStrategy* mstrategy;
-        AbstractWorkerPool* workerpool;
+        IAddRemoveWorker* workerpool;
         
         chrono::high_resolution_clock::time_point start; // when starting to count time  
         chrono::high_resolution_clock::time_point beginning; // just for output puposes 
@@ -27,7 +27,7 @@ class Monitor{
             old_taskcollected = 0;
         }
 
-        void initWorkerPool(AbstractWorkerPool* wp){
+        void initWorkerPool(IAddRemoveWorker* wp){
             workerpool = wp;
         }
 
@@ -52,13 +52,12 @@ class Monitor{
             } else {
                 throughput = previous_throughput;
             }
-                
             int command = mstrategy->addWorker(throughput);
-                
+            
             if (command & ADDWORKER){
-                workerpool->pushCommand(ADDWORKER_WP);
+                workerpool->addWorker();
             }else if (command & REMOVEWORKER){   
-                workerpool->pushCommand(REMOVEWORKER_WP);
+                workerpool->removeWorker();
             } 
             
             float now_milliseconds = (long int)chrono::duration_cast<std::chrono::microseconds>(now - beginning).count()/1000.0;
@@ -69,7 +68,7 @@ class Monitor{
 
             // output to be redireted to a .csv file
             printf("%.2f, %.2f, %d\n", now_milliseconds, throughput, workerpool->getActualWorkers());
-            
+
             if (command & REFRESH_THROUGHPUT){
                 start = chrono::high_resolution_clock::now(); 
                 old_taskcollected = task_collected;

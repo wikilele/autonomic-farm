@@ -1,15 +1,9 @@
 
 #include <iostream>
 #include <vector>
-#include <lib/fastflow/ff/ff.hpp>
 #include <lib/inputvectors/inputvectors.hpp>
-#include <src/ff/ffFarmWorker.hpp>
-#include <src/ff/ffScheduler.hpp>
-
-
-using namespace ff;
-
-
+#include <src/AutonomicFarmBuilder.hpp>
+#define USE_FASTFLOW
 
 int main(int argc, char* argv[]) {
 
@@ -24,8 +18,8 @@ int main(int argc, char* argv[]) {
 
     vector<int*>* vect = getInputVector();
     
-
-    ffMonitor* monitor = new ffMonitor();
+    /*IMonitorStrategy* mstrategy = new DefaultMonitorStrategy(throughput, vect->size());
+    Monitor* monitor = new Monitor(mstrategy,throughput);
 
     std::vector<ff_node* > workers;
     for(size_t i = 0; i < nw; i++){  
@@ -33,9 +27,7 @@ int main(int argc, char* argv[]) {
     }
     ff_farm farm(workers);
     farm.cleanup_workers();
-    
-    // registering the mranager channel as one extra input channel for the load balancer
-    farm.getlb()->addManagerChannel(monitor->getChannel());
+
     
     DefaultEmitter<int> * emitter = new DefaultEmitter<int>(vect);
     DefaultCollector<int>* collector = new DefaultCollector<int>();
@@ -51,13 +43,18 @@ int main(int argc, char* argv[]) {
         return -1;
     }
              
-    //manager.run();
-    
-    farm.wait_freezing();
-    
-    farm.wait();
-    
-    //manager.wait();
+    farm.wait_freezing();*/
 
+
+    IAutonomicFarm<int,int>* afarm =  (new AutonomicFarmBuilder<int,int>())
+                                            ->useDefaultEmitter(vect)
+                                            ->useDefaultCollector()
+                                            ->setNumberOfWorkers(nw)
+                                            ->setWorkerFunction(activewait)
+                                            ->useDefaultMonitorStrategy(throughput)
+                                            ->useFastFlow()
+                                            ->build();
+
+    vector<int*>* results = afarm->runAndGetResults();
     return 0;
 }
