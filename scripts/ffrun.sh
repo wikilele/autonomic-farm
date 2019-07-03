@@ -44,4 +44,4 @@ runffOthers(){
 }
 
 echo "running ffmain-constant..."
-runffOthers 4 1 constant
+runffOthers 6 1 constant
