@@ -37,16 +37,18 @@ class ffScheduler: public ff_monode_t<TOUT,TIN> { // the master receives the res
 
         TIN* svc(TOUT* t) {       
             int wid = this->get_channel_id();
-            
+                   
             // result and ack coming from a worker
             if ((size_t)wid < this->get_num_outchannels()) { 
                 TIN* newtask = emitter->getNextItem();
                 task_collected ++;
+
                 collector->pushResult(t);
                 //printf("task emitted %d - task collected %d\n",task_emitted,task_collected);
                 if (newtask != NULL){                 
                     task_emitted ++;
                     this->ff_send_out_to(newtask, wid);
+                    
                     monitor->notify(task_collected);
                 } else {
                     // managing the termination
