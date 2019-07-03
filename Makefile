@@ -68,7 +68,7 @@ FFFLAGS = -I./lib/fastflow -DUSE_FASTFLOW
 
 
 ffmain-default: ffmain.cpp default-inputvector
-	g++ -o $(BUILD_DIR)/ffmain-default ffmain.cpp $(BUILD_DIR)/$(DEFAULT_VEC).o -lpthread -I. $(FFFLAGS)
+	g++ -o $(BUILD_DIR)/ffmain-default ffmain.cpp $(BUILD_DIR)/$(DEFAULT_VEC).o -lpthread -I. $(FFFLAGS) -D DEBUG
 
 ffmain-constant:  ffmain.cpp constant-inputvector
 	g++ -o $(BUILD_DIR)/ffmain-constant main.cpp $(BUILD_DIR)/$(CONSTANT_VEC).o -lpthread -I. $(FFFLAGS)

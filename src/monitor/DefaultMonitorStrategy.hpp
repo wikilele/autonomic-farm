@@ -121,8 +121,9 @@ class DefaultMonitorStrategy: public IMonitorStrategy{
                     // so there is nothing to do
                     command = DONOTHING;
                 } else {
-                    //printf("trend %.2f - average %.2f \n",trend,average);
-
+#ifdef DEBUG
+                    printf("trend %.2f - average %.2f \n",trend,average);
+#endif /* DEBUG */
                     if (costantTrend(trend)){
 
                         if (lowAverage(average)) command = ADDWORKER;

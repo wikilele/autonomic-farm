@@ -45,7 +45,9 @@ class Monitor{
             auto elapsed = now - start;
 
             float elapsed_milliseconds = (long int)chrono::duration_cast<std::chrono::microseconds>(elapsed).count()/1000.0;
-
+#ifdef DEBUG
+            printf("task collected %d - elapsed_milliec %f\n",task_collected - old_taskcollected, elapsed_milliseconds);
+#endif /* DEBUG */
             if (elapsed_milliseconds >= 0.500){
                 throughput = (task_collected - old_taskcollected )/ elapsed_milliseconds;
                 previous_throughput = throughput;
@@ -61,14 +63,15 @@ class Monitor{
             } 
             
             float now_milliseconds = (long int)chrono::duration_cast<std::chrono::microseconds>(now - beginning).count()/1000.0;
-            /*printf("EXPT %.1f - T %.2f - ANW %d - TOTNW %d \n", expected_throughput,
+#ifdef DEBUG
+            printf("EXPT %.1f - T %.2f - ANW %d - TOTNW %d \n", expected_throughput,
                                                             throughput,
                                                             workerpool->getActualWorkers(),
-                                                            workerpool->getTotalWorkers());*/
-
-            // output to be redireted to a .csv file
+                                                            workerpool->getTotalWorkers());
+#else
+            //output to be redireted to a .csv file
             printf("%.2f, %.2f, %d\n", now_milliseconds, throughput, workerpool->getActualWorkers());
-
+#endif /* DEBUG */
             if (command & REFRESH_THROUGHPUT){
                 start = chrono::high_resolution_clock::now(); 
                 old_taskcollected = task_collected;
