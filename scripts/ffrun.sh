@@ -28,7 +28,7 @@ makeDirectory results/ff/default
 
 runffDefault 8 1
 
-runffDefault 8 2
+runffDefault 16 2
 
 
 # running the others

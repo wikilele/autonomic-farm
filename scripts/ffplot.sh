@@ -46,7 +46,7 @@ makeDirectory results/charts/ff/default
 
 plotffDefault 8 1
 
-plotffDefault 8 2
+plotffDefault 16 2
 
 
 
