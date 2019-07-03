@@ -70,5 +70,5 @@ plotffOthers(){
 
 
 echo "plotting ffmain-constant"
-plotffOthers 4 1 constant
+plotffOthers 6 1 constant
 
