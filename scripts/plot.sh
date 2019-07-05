@@ -28,12 +28,12 @@ plotDefault(){
 	do  
 		# --ycol 2 refers to the thoughput
 		graph results/default/$1_$2/result$i.csv  --marker '' --xcol 1	\
-		--ycol 2 --color=#000000 --title "main-default $1 nw , $2 task/milliseconds" --no-grid --xscale 200	\
+		--ycol 2 --color=#000000 --title "main-default $1 nw , $2 task/milliseconds" --no-grid --xscale 300	\
 			-o results/charts/default/$1_$2/result_t$i.png
 
 		# --ycol 3 refers to the number of workers
 		graph results/default/$1_$2/result$i.csv  --marker '' --xcol 1	\
-			--ycol 3 --color=#000000 --title "main-default $1 nw , $2 task/milliseconds " --no-grid --xscale 200	\
+			--ycol 3 --color=#000000 --title "main-default $1 nw , $2 task/milliseconds " --no-grid --xscale 300	\
 				-o results/charts/default/$1_$2/result_nw$i.png
 	done
 }
@@ -53,12 +53,9 @@ plotDefault 8 1
 
 plotDefault 4 2
 
-plotDefault 1 8
-
-plotDefault 8 16
-
 plotDefault 4 4
 
+plotDefault 16 4
 
 # $1 = nw , $2 = throughput , $3 = name
 plotOthers(){
