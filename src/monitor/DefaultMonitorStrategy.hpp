@@ -97,7 +97,7 @@ class DefaultMonitorStrategy: public IMonitorStrategy{
     public:
         DefaultMonitorStrategy(float exp_t, int inputsize): IMonitorStrategy(exp_t){
             // defining a window back in time
-            this->WINDOW_SIZE = inputsize/100; 
+            this->WINDOW_SIZE = inputsize/150; 
             // defining some thresholds
             this->AVG_THRESHOLD = exp_t* 1/10;
             this->TREND_THRESHOLD = exp_t* 2/10;

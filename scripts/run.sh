@@ -38,11 +38,9 @@ runDefault 8 1
 
 runDefault 4 2
 
-runDefault 1 8
-
-runDefault 8 16
-
 runDefault 4 4
+
+runDefault 16 4
 
 
 # running the others
