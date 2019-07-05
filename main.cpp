@@ -21,7 +21,7 @@ int main(int argc, char * argv[]){
                                             ->useDefaultCollector()
                                             ->setNumberOfWorkers(nw)
                                             ->setWorkerFunction(activewait)
-                                            ->useDefaultMonitorStrategy(throughput)
+                                            ->useGeneralMonitorStrategy(throughput)
                                             ->build();
 
     vector<int*>* results = afarm->runAndGetResults();

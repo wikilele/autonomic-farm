@@ -3,7 +3,7 @@
 #include <src/IAutonomicFarm.hpp>
 #include <src/ff/ffFarmWorker.hpp>
 #include <src/ff/ffScheduler.hpp>
-#include <src/monitor/DefaultMonitorStrategy.hpp>
+
 
 
 template <typename TIN, typename TOUT>

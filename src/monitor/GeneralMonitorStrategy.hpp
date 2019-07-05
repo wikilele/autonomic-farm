@@ -8,7 +8,7 @@
 using namespace std;
 
 
-class DefaultMonitorStrategy: public IMonitorStrategy{
+class GeneralMonitorStrategy: public IMonitorStrategy{
     protected:
         // this values must be untouched
         int WINDOW_SIZE;
@@ -95,7 +95,7 @@ class DefaultMonitorStrategy: public IMonitorStrategy{
         }
 
     public:
-        DefaultMonitorStrategy(float exp_t, int inputsize): IMonitorStrategy(exp_t){
+        GeneralMonitorStrategy(float exp_t, int inputsize): IMonitorStrategy(exp_t){
             // defining a window back in time
             this->WINDOW_SIZE = inputsize/150; 
             // defining some thresholds

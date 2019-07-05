@@ -1,6 +1,6 @@
 
 #include <src/AutonomicFarm.hpp>
-#include <src/monitor/DefaultMonitorStrategy.hpp>
+#include <src/monitor/GeneralMonitorStrategy.hpp>
 
 #ifdef USE_FASTFLOW
 #include <src/ff/ffAutonomicFarm.hpp>
@@ -81,7 +81,7 @@ class AutonomicFarmBuilder{
             return this;
         }
 
-        AutonomicFarmBuilder<TIN,TOUT>* useDefaultMonitorStrategy(float  expected_throughput){
+        AutonomicFarmBuilder<TIN,TOUT>* useGeneralMonitorStrategy(float  expected_throughput){
             this->expected_throughput = expected_throughput;
             
             if (inputsize <= 0){
@@ -90,7 +90,7 @@ class AutonomicFarmBuilder{
                 exit(-1);
             }
 
-            mstrategy = new DefaultMonitorStrategy( expected_throughput, inputsize);
+            mstrategy = new GeneralMonitorStrategy( expected_throughput, inputsize);
             return this;  
         }
 #ifdef USE_FASTFLOW
