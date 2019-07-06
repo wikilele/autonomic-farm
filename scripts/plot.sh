@@ -8,7 +8,7 @@
 # This file has been runned on the local machine 
 #	
 
-#rsync -avzh frioli-spm19@unipipds:/home/frioli-spm19/autonomic-farm/results /home/leonardo/Documenti/unipi/ParallelDistributedSystems/finalproject/
+
 
 makeDirectory(){
 	if [ ! -d $1 ] 
